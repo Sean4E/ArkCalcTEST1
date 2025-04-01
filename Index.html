@@ -5,39 +5,55 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
         }
-        .container {
+        .app-container {
             display: flex;
-            gap: 20px;
+            min-height: 100vh;
         }
         .sidebar {
-            width: 250px;
+            width: 300px;
             background-color: #2c3e50;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
+            color: #ecf0f1;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            overflow-y: auto;
         }
         .main-content {
             flex: 1;
-            background-color: white;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: #ecf0f1;
+        }
+        .storage-sidebar {
+            width: 250px;
+            background-color: #34495e;
+            color: #ecf0f1;
+            padding: 20px;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+            overflow-y: auto;
         }
         h1, h2, h3 {
             color: #2980b9;
+            margin-top: 0;
+        }
+        .sidebar h2, .storage-sidebar h2 {
+            color: #3498db;
+            border-bottom: 1px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .recipe-list {
+            margin-top: 15px;
         }
         .recipe-item {
-            cursor: pointer;
-            padding: 8px;
-            margin-bottom: 4px;
+            padding: 10px;
+            margin-bottom: 5px;
             background-color: #34495e;
             border-radius: 4px;
-            transition: background-color 0.3s;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
         .recipe-item:hover {
             background-color: #3498db;
@@ -46,46 +62,82 @@
             background-color: #2980b9;
             font-weight: bold;
         }
-        .recipe-list {
-            max-height: 400px;
-            overflow-y: auto;
-            margin-top: 10px;
-        }
-        .search-input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 15px;
-            border: none;
+        .storage-item {
+            padding: 10px;
+            margin-bottom: 5px;
+            background-color: #2c3e50;
             border-radius: 4px;
-            background-color: #34495e;
-            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
-        .search-input::placeholder {
-            color: #bdc3c7;
+        .storage-item:hover {
+            background-color: #3498db;
+        }
+        .storage-item.selected {
+            background-color: #2980b9;
+            font-weight: bold;
+        }
+        .calculator-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .recipe-details {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
         }
         .ingredient-row {
             display: flex;
             align-items: center;
             margin-bottom: 10px;
-            padding: 8px;
-            background-color: #f8f9fa;
+            padding: 10px;
+            background-color: #f5f7fa;
             border-radius: 4px;
+            border: 1px solid #e6e9ed;
         }
-        label {
-            margin-right: 10px;
-            min-width: 80px;
+        .ingredient-autocomplete {
+            position: relative;
+            width: 250px;
+            margin-right: 15px;
         }
-        input {
-            padding: 8px;
+        .ingredient-input {
+            width: 100%;
+            padding: 8px 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            margin-right: 10px;
+            font-size: 14px;
         }
-        input[type="number"] {
+        .autocomplete-list {
+            position: absolute;
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: white;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            display: none;
+        }
+        .autocomplete-item {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        .autocomplete-item:hover {
+            background-color: #f5f7fa;
+        }
+        .quantity-input {
             width: 80px;
-        }
-        input[type="text"] {
-            width: 150px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-right: 15px;
         }
         button {
             background-color: #3498db;
@@ -94,38 +146,43 @@
             padding: 8px 15px;
             border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            font-size: 14px;
+            transition: background-color 0.2s;
         }
         button:hover {
             background-color: #2980b9;
         }
-        .remove-btn {
-            background-color: #e74c3c;
-            margin-left: auto;
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
         }
-        .remove-btn:hover {
+        button.remove-btn {
+            background-color: #e74c3c;
+        }
+        button.remove-btn:hover {
             background-color: #c0392b;
         }
-        .add-btn {
+        button.add-btn {
             background-color: #2ecc71;
             margin-top: 10px;
-            margin-bottom: 20px;
         }
-        .add-btn:hover {
+        button.add-btn:hover {
             background-color: #27ae60;
         }
-        .station-section {
+        button.calculate-btn {
+            background-color: #9b59b6;
+            font-size: 16px;
+            padding: 10px 20px;
             margin-top: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
         }
-        .results-section {
-            margin-top: 20px;
-            padding: 15px;
+        button.calculate-btn:hover {
+            background-color: #8e44ad;
+        }
+        .results-container {
             background-color: #f0f9ff;
-            border-radius: 4px;
-            border-left: 4px solid #3498db;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid #9b59b6;
         }
         table {
             width: 100%;
@@ -142,3136 +199,639 @@
             color: white;
         }
         tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .calculate-btn {
-            background-color: #9b59b6;
-            font-size: 16px;
-            padding: 10px 20px;
-        }
-        .calculate-btn:hover {
-            background-color: #8e44ad;
-        }
-        .export-btn {
-            background-color: #f39c12;
-        }
-        .export-btn:hover {
-            background-color: #e67e22;
-        }
-        .import-btn {
-            background-color: #1abc9c;
-        }
-        .import-btn:hover {
-            background-color: #16a085;
-        }
-        .edit-btn {
-            background-color: #e67e22;
-        }
-        .edit-btn:hover {
-            background-color: #d35400;
-        }
-        .select {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 200px;
-            margin-right: 10px;
-        }
-        #file-input {
-            display: none;
-        }
-        .station-filter {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 100%;
-            margin-bottom: 10px;
-            background-color: #34495e;
-            color: white;
-        }
-        .info-label {
-            background-color: #f2f2f2;
-            padding: 8px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .modal {
-            background-color: white;
-            width: 80%;
-            max-width: 800px;
-            border-radius: 8px;
-            padding: 20px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        .modal-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #2980b9;
-        }
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #7f8c8d;
-        }
-        .tab-buttons {
-            display: flex;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 20px;
-        }
-        /* Updated tab button styles for better visibility */
-        .tab-button {
-            padding: 10px 20px;
-            background-color: #e0e0e0;
-            border: 1px solid #bbb;
-            cursor: pointer;
-            margin-right: 5px;
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
-            color: #333;
-            font-weight: 500;
-        }
-        .tab-button:hover {
-            background-color: #d0d0d0;
-        }
-        .tab-button.active {
-            background-color: #3498db;
-            color: white;
-            border-color: #3498db;
-            border-bottom-color: transparent;
-            position: relative;
-            z-index: 1;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .data-grid {
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        .data-grid tr:hover {
-            background-color: #f5f5f5;
-        }
-        .edit-row-btn {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .save-btn {
-            background-color: #2ecc71;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-            float: right;
-        }
-        /* Station select for recipes */
-        .station-options-dropdown {
-            margin-bottom: 15px;
-            width: 100%;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            background-color: #f8f9fa;
-        }
-        /* Crafting option row */
-        .crafting-option {
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 12px;
             background-color: #f9f9f9;
         }
-        .crafting-option-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #eee;
-            font-weight: bold;
+        tr:hover {
+            background-color: #f1f1f1;
         }
-        .add-station-btn {
-            background-color: #2ecc71;
-            margin-top: 10px;
-            margin-bottom: 10px;
-            display: inline-block;
-        }
-        /* Enhanced Recipe Editor Styles */
-        .recipe-edit-form {
-            padding: 15px;
-        }
-        
-        .form-group {
+        .search-container {
             margin-bottom: 15px;
         }
-        
-        .form-input {
+        .search-input {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            margin-top: 5px;
+            font-size: 14px;
+            background-color: #34495e;
+            color: #ecf0f1;
         }
-        
-        .ingredients-container {
+        .search-input::placeholder {
+            color: #bdc3c7;
+        }
+        .crafting-info {
             margin-top: 15px;
             padding: 10px;
-            border: 1px solid #eee;
+            background-color: #e8f4fc;
             border-radius: 4px;
         }
-        
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            padding: 15px;
-            border-top: 1px solid #ddd;
+        .custom-recipe-btn {
+            width: 100%;
+            margin-top: 20px;
+            background-color: #f39c12;
         }
-        
-        .cancel-btn {
-            background-color: #95a5a6;
+        .custom-recipe-btn:hover {
+            background-color: #d35400;
         }
-        
-        .cancel-btn:hover {
-            background-color: #7f8c8d;
-        }
-        
-        /* Recipe favorite styling */
-        .recipe-item.favorite {
-            border-left: 3px solid #f39c12;
-        }
-        
-        /* Batch actions container */
-        .batch-actions {
-            margin-top: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-        }
-        
-        /* Progress bar for wiki import */
-        #progress-bar {
-            width: 0%;
-            background-color: #3498db;
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.3s;
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <h1>Ark Survival Ascended Crafting Calculator</h1>
-    
-    <div class="container">
+    <div class="app-container">
+        <!-- Left Sidebar - Recipe List -->
         <div class="sidebar">
-            <h2>Recipes</h2>
-            <select id="station-filter" class="station-filter">
-                <option value="all">All Stations</option>
-                <option value="Inventory">Inventory</option>
-                <option value="Mortar and Pestle">Mortar and Pestle</option>
-                <option value="Cooking Pot">Cooking Pot</option>
-                <option value="Smithy">Smithy</option>
-                <option value="Fabricator">Fabricator</option>
-                <option value="Chemistry Bench">Chemistry Bench</option>
-                <option value="Industrial Forge">Industrial Forge</option>
-            </select>
-            <input type="text" id="recipe-search" class="search-input" placeholder="Search recipes...">
-            <div id="recipe-list" class="recipe-list">
-                <!-- Recipes will be listed here -->
+            <h2>Ark Recipes</h2>
+            <div class="search-container">
+                <input type="text" id="recipe-search" class="search-input" placeholder="Search recipes...">
             </div>
+            <div class="recipe-list" id="recipe-list">
+                <!-- Recipe items will be populated here -->
+            </div>
+            <button class="custom-recipe-btn" id="custom-recipe-btn">Create Custom Recipe</button>
         </div>
-        
+
+        <!-- Main Content - Calculator -->
         <div class="main-content">
-            <h2 id="recipe-name">Select a Recipe</h2>
+            <h1>Ark Survival Ascended Crafting Calculator</h1>
             
-            <div class="station-section">
-                <h3>Crafting Station</h3>
-                <div class="info-label" id="station-info">
-                    Select a crafting station from the dropdown to view available recipes.
-                </div>
-                
-                <div>
-                    <label for="crafting-station">Station:</label>
-                    <select id="crafting-station" class="select">
-                        <option value="Inventory">Inventory (slot capacity: 300)</option>
-                        <option value="Mortar and Pestle">Mortar and Pestle (slot capacity: 75)</option>
-                        <option value="Cooking Pot">Cooking Pot (slot capacity: 60)</option>
-                        <option value="Smithy">Smithy (slot capacity: 150)</option>
-                        <option value="Fabricator">Fabricator (slot capacity: 90)</option>
-                        <option value="Chemistry Bench">Chemistry Bench (slot capacity: 600)</option>
-                        <option value="Industrial Forge">Industrial Forge (slot capacity: 1200)</option>
-                    </select>
-                    
-                    <label for="station-slots">Slots:</label>
-                    <input type="number" id="station-slots" value="75" min="1">
-                </div>
-            </div>
-            
-            <div id="recipe-details" style="display: none;">
-                <div id="crafting-options-container">
-                    <h3>Crafting Options</h3>
-                    <select id="crafting-options-select" class="station-options-dropdown">
-                        <!-- Crafting options will be dynamically populated -->
-                    </select>
+            <div class="calculator-container">
+                <div class="recipe-details" id="recipe-details">
+                    <h2 id="recipe-name">Custom Recipe</h2>
+                    <div id="crafting-station-container">
+                        <label for="crafting-station">Crafting Station:</label>
+                        <select id="crafting-station" class="ingredient-input">
+                            <!-- Crafting stations will be populated here -->
+                        </select>
+                    </div>
+                    <div id="recipe-yield-container" class="crafting-info">
+                        <label for="recipe-yield">Yield per craft:</label>
+                        <input type="number" id="recipe-yield" class="quantity-input" value="1" min="1">
+                    </div>
                 </div>
                 
                 <h3>Recipe Ingredients</h3>
                 <div id="ingredients-container">
-                    <!-- Ingredient details will be loaded here -->
+                    <!-- Ingredient rows will be populated here -->
                 </div>
+                <button class="add-btn" id="add-ingredient-btn">Add Another Ingredient</button>
                 
-                <div class="storage-section">
-                    <h3>Output Storage</h3>
-                    <select id="storage-select" class="select">
-                        <option value="100">Inventory Slot (100)</option>
-                        <option value="900">Small Storage Box (900)</option>
-                        <option value="150">Large Storage Box (150)</option>
-                        <option value="1000">Preserving Bin (1000)</option>
-                        <option value="1500">Refrigerator (1500)</option>
-                        <option value="2000">Industrial Forge (2000)</option>
-                        <option value="3000">Industrial Cooker (3000)</option>
-                        <option value="350">Vault (350)</option>
-                        <option value="300000">Tek Dedicated Storage (300000)</option>
-                    </select>
-                </div>
-                
-                <div class="action-buttons">
-                    <button id="calculate-btn" class="calculate-btn">Calculate Optimal Resources</button>
-                    <button id="edit-btn" class="edit-btn">Edit Data</button>
-                    <button id="export-btn" class="export-btn">Export</button>
-                    <button id="import-btn" class="import-btn">Import</button>
-                    <input type="file" id="file-input" accept=".json">
-                </div>
-            </div>
-            
-            <div class="results-section" id="results-section" style="display: none;">
-                <h3>Results</h3>
-                
-                <div id="station-results">
-                    <h4>Crafting Station Resources</h4>
-                    <p>Fill your crafting station with these resources for optimal crafting:</p>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Quantity</th>
-                                <th>Stack Size</th>
-                                <th>Slots Required</th>
-                                <th>Percentage</th>
-                            </tr>
-                        </thead>
-                        <tbody id="station-results-body">
-                            <!-- Results will be populated here -->
-                        </tbody>
-                    </table>
-                    <p>With these resources, you can craft <span id="crafting-amount">0</span> items.</p>
-                </div>
-                
-                <div id="storage-results">
-                    <h4>Storage Requirements</h4>
-                    <p>To store all crafted items, you will need:</p>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Storage Type</th>
-                                <th>Slots Required</th>
-                                <th>Total Items</th>
-                            </tr>
-                        </thead>
-                        <tbody id="storage-results-body">
-                            <!-- Results will be populated here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Edit Data Modal -->
-    <div class="modal-overlay" id="edit-modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title">Edit Data</div>
-                <button class="modal-close">&times;</button>
-            </div>
-            
-            <div class="tab-buttons">
-                <button class="tab-button active" data-tab="stations-tab">Crafting Stations</button>
-                <button class="tab-button" data-tab="ingredients-tab">Ingredients</button>
-                <button class="tab-button" data-tab="recipes-tab">Recipes</button>
-                <button class="tab-button" data-tab="storage-tab">Storage</button>
-            </div>
-            
-            <div class="tab-content active" id="stations-tab">
-                <h3>Crafting Stations</h3>
-                <table class="data-grid">
-                    <thead>
-                        <tr>
-                            <th>Station Name</th>
-                            <th>Slot Capacity</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="stations-table-body">
-                        <!-- Crafting stations will be listed here -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="tab-content" id="ingredients-tab">
-                <h3>Ingredients</h3>
-                <input type="text" id="ingredient-search" class="search-input" placeholder="Search ingredients...">
-                <table class="data-grid">
-                    <thead>
-                        <tr>
-                            <th>Ingredient Name</th>
-                            <th>Stack Size</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ingredients-table-body">
-                        <!-- Ingredients will be listed here -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="tab-content" id="recipes-tab">
-                <h3>Recipes</h3>
-                <input type="text" id="recipe-modal-search" class="search-input" placeholder="Search recipes...">
-                <table class="data-grid">
-                    <thead>
-                        <tr>
-                            <th>Recipe Name</th>
-                            <th>Crafting Stations</th>
-                            <th>Yield</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recipes-table-body">
-                        <!-- Recipes will be listed here -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="tab-content" id="storage-tab">
-                <h3>Storage Containers</h3>
-                <table class="data-grid">
-                    <thead>
-                        <tr>
-                            <th>Container Name</th>
-                            <th>Capacity</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="storage-table-body">
-                        <!-- Storage containers will be listed here -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <button class="save-btn">Save Changes</button>
-        </div>
-    </div>
-
-    <!-- Enhanced Recipe Edit Modal -->
-    <div class="modal-overlay" id="recipe-edit-modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title">Edit Recipe</div>
-                <button class="modal-close">&times;</button>
-            </div>
-            
-            <div class="recipe-edit-form">
-                <div class="form-group">
-                    <label for="recipe-name">Recipe Name:</label>
-                    <input type="text" id="recipe-name" class="form-input" placeholder="Enter recipe name">
-                </div>
-                
-                <div class="form-group">
-                    <label for="recipe-yield">Yield Amount:</label>
-                    <input type="number" id="recipe-yield" class="form-input" min="1" value="1">
-                </div>
-                
-                <div class="form-group">
-                    <label for="recipe-stack-size">Stack Size:</label>
-                    <input type="number" id="recipe-stack-size" class="form-input" min="1" value="100">
-                </div>
-                
-                <div class="form-group">
-                    <h4>Crafting Options</h4>
-                    <div id="crafting-options-container">
-                        <!-- Crafting options will be added here -->
-                    </div>
-                    <button type="button" id="add-crafting-option-btn" class="add-btn">Add Crafting Option</button>
-                </div>
-            </div>
-            
-            <div class="modal-footer">
-                <button type="button" id="save-recipe-btn" class="save-btn">Save Recipe</button>
-                <button type="button" id="cancel-recipe-btn" class="cancel-btn">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Wiki Import Modal -->
-    <div class="modal-overlay" id="wiki-import-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title">Import from ARK Wiki</div>
-                <button class="modal-close">&times;</button>
-            </div>
-            
-            <div style="padding: 20px;">
-                <p>This feature attempts to import data from the ARK Wiki. Choose what you want to import:</p>
-                
-                <div style="margin: 20px 0;">
+                <div class="storage-inputs">
+                    <h3>Storage Container</h3>
                     <div>
-                        <input type="checkbox" id="import-ingredients" checked>
-                        <label for="import-ingredients">Ingredients (Items)</label>
+                        <label for="selected-storage">Selected Storage:</label>
+                        <select id="selected-storage" class="ingredient-input">
+                            <!-- Storage options will be populated here -->
+                        </select>
                     </div>
-                    
                     <div>
-                        <input type="checkbox" id="import-stations" checked>
-                        <label for="import-stations">Crafting Stations</label>
-                    </div>
-                    
-                    <div>
-                        <input type="checkbox" id="import-recipes" checked>
-                        <label for="import-recipes">Recipes</label>
+                        <label for="capacity">Custom Capacity:</label>
+                        <input type="number" id="capacity" class="quantity-input" value="100" min="1">
                     </div>
                 </div>
                 
-                <div style="margin-bottom: 20px;">
-                    <input type="text" id="wiki-url" class="form-input" placeholder="Enter specific ARK Wiki page URL (optional)">
-                    <p class="info-label" style="margin-top: 5px;">
-                        Leave empty to import common items and recipes. For specific recipes, enter the wiki page URL.
-                    </p>
+                <button class="calculate-btn" id="calculate-btn">Calculate Optimal Quantities</button>
+            </div>
+            
+            <div class="results-container" id="results-container">
+                <h2>Results</h2>
+                <p>Fill your storage with the following quantities:</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Quantity</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-body">
+                        <!-- Results will be populated here -->
+                    </tbody>
+                </table>
+                <div id="recipe-info" class="crafting-info">
+                    <p>This distribution allows for optimal usage of your storage space while maintaining the recipe proportions.</p>
+                    <p>You can craft approximately <span id="crafting-amount">0</span> complete recipes with these quantities.</p>
                 </div>
-                
-                <div id="wiki-import-status" style="margin-top: 20px; display: none;">
-                    <div class="info-label" style="padding: 10px;">
-                        <span id="import-message">Importing data...</span>
-                        <div id="import-progress" style="margin-top: 10px;">
-                            <div style="width: 100%; background-color: #eee; border-radius: 4px; height: 20px;">
-                                <div id="progress-bar"></div>
-                            </div>
-                            <div id="progress-text" style="text-align: center; margin-top: 5px;">0%</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
-                    <button id="start-import-btn" class="import-btn">Start Import</button>
-                    <button id="cancel-import-btn" class="cancel-btn">Cancel</button>
-                </div>
+            </div>
+        </div>
+        
+        <!-- Right Sidebar - Storage Options -->
+        <div class="storage-sidebar">
+            <h2>Storage Options</h2>
+            <div class="search-container">
+                <input type="text" id="storage-search" class="search-input" placeholder="Search storage...">
+            </div>
+            <div class="storage-list" id="storage-list">
+                <!-- Storage items will be populated here -->
             </div>
         </div>
     </div>
-
-    <!-- Templates for dynamic content -->
-    <template id="crafting-option-template">
-        <div class="crafting-option" data-index="{index}">
-            <div class="crafting-option-header">
-                <span>Crafting Option #{index}</span>
-                <button type="button" class="remove-btn remove-option-btn">Remove</button>
-            </div>
-            
-            <div class="form-group">
-                <label for="option-station-{index}">Crafting Station:</label>
-                <select id="option-station-{index}" class="station-select form-input">
-                    <!-- Stations will be populated here -->
-                </select>
-            </div>
-            
-            <div class="ingredients-container">
-                <h5>Ingredients</h5>
-                <div class="ingredients-list">
-                    <!-- Ingredients will be added here -->
-                </div>
-                <button type="button" class="add-ingredient-btn add-btn">Add Ingredient</button>
-            </div>
-        </div>
-    </template>
-
-    <template id="ingredient-row-template">
-        <div class="ingredient-row" data-index="{index}">
-            <select class="ingredient-select form-input">
-                <!-- Ingredients will be populated here -->
-            </select>
-            <input type="number" class="ingredient-quantity form-input" min="1" value="1">
-            <button type="button" class="remove-btn remove-ingredient-btn">Remove</button>
-        </div>
-    </template>
 
     <script>
-        // Default data
-        const defaultCraftingStations = [
-            { name: "Inventory", slotCapacity: 300 },
-            { name: "Mortar and Pestle", slotCapacity: 75 },
-            { name: "Cooking Pot", slotCapacity: 60 },
-            { name: "Smithy", slotCapacity: 150 },
-            { name: "Fabricator", slotCapacity: 90 },
-            { name: "Chemistry Bench", slotCapacity: 600 },
-            { name: "Industrial Forge", slotCapacity: 1200 },
-            { name: "Industrial Cooker", slotCapacity: 450 }
+        // Ark resources data
+        const ingredients = [
+            "Amarberry", "Azulberry", "Mejoberry", "Narcoberry", "Stimberry", "Tintoberry", 
+            "Fiber", "Thatch", "Wood", "Stone", "Flint", "Metal", "Crystal", "Obsidian",
+            "Hide", "Chitin", "Keratin", "Pelt", "Raw Meat", "Cooked Meat", "Spoiled Meat",
+            "Raw Fish Meat", "Cooked Fish Meat", "Silica Pearls", "Oil", "Polymer", "Cementing Paste",
+            "Charcoal", "Gunpowder", "Sparkpowder", "Electronics", "Metal Ingot", "Gasoline",
+            "Narcotic", "Stimulant", "Waterskin", "Water Jar", "Canteen", "Simple Rifle Ammo",
+            "Advanced Rifle Ammo", "Shotgun Ammo", "Tranquilizer Arrow", "Arrow", "Polymer", "Organic Polymer"
+        ].sort();
+
+        const recipes = [
+            {
+                name: "Narcotic",
+                craftingStation: "Mortar and Pestle",
+                ingredients: [
+                    { name: "Narcoberry", quantity: 5 },
+                    { name: "Spoiled Meat", quantity: 1 }
+                ],
+                craftTime: 3,
+                yields: 1
+            },
+            {
+                name: "Stimulant",
+                craftingStation: "Mortar and Pestle",
+                ingredients: [
+                    { name: "Stimberry", quantity: 5 },
+                    { name: "Spoiled Meat", quantity: 1 }
+                ],
+                craftTime: 3,
+                yields: 1
+            },
+            {
+                name: "Gunpowder",
+                craftingStation: "Mortar and Pestle",
+                ingredients: [
+                    { name: "Charcoal", quantity: 1 },
+                    { name: "Sparkpowder", quantity: 1 }
+                ],
+                craftTime: 1,
+                yields: 1
+            },
+            {
+                name: "Sparkpowder",
+                craftingStation: "Mortar and Pestle",
+                ingredients: [
+                    { name: "Flint", quantity: 2 },
+                    { name: "Stone", quantity: 1 }
+                ],
+                craftTime: 1,
+                yields: 2
+            },
+            {
+                name: "Simple Rifle Ammo",
+                craftingStation: "Fabricator",
+                ingredients: [
+                    { name: "Gunpowder", quantity: 6 },
+                    { name: "Metal Ingot", quantity: 1 }
+                ],
+                craftTime: 3,
+                yields: 2
+            },
+            {
+                name: "Tranquilizer Arrow",
+                craftingStation: "Smithy",
+                ingredients: [
+                    { name: "Narcotic", quantity: 1 },
+                    { name: "Arrow", quantity: 1 }
+                ],
+                craftTime: 3,
+                yields: 1
+            }
         ];
 
-        const defaultStorageContainers = [
+        const storageContainers = [
             { name: "Inventory Slot", capacity: 100 },
             { name: "Small Storage Box", capacity: 900 },
-            { name: "Large Storage Box", capacity: 150 },
+            { name: "Large Storage Box", capacity: 3000 },
             { name: "Preserving Bin", capacity: 1000 },
             { name: "Refrigerator", capacity: 1500 },
             { name: "Industrial Forge", capacity: 2000 },
             { name: "Industrial Cooker", capacity: 3000 },
-            { name: "Vault", capacity: 350 },
-            { name: "Tek Dedicated Storage", capacity: 300000 }
+            { name: "Tek Dedicated Storage", capacity: 300000 },
+            { name: "Vault", capacity: 9000 }
         ];
 
-        const defaultIngredients = [
-            { name: "Amarberry", stackSize: 100 },
-            { name: "Azulberry", stackSize: 100 },
-            { name: "Mejoberry", stackSize: 100 },
-            { name: "Narcoberry", stackSize: 100 },
-            { name: "Stimberry", stackSize: 100 },
-            { name: "Tintoberry", stackSize: 100 },
-            { name: "Fiber", stackSize: 1000 },
-            { name: "Thatch", stackSize: 1000 },
-            { name: "Wood", stackSize: 1000 },
-            { name: "Stone", stackSize: 1000 },
-            { name: "Flint", stackSize: 1000 },
-            { name: "Metal", stackSize: 200 },
-            { name: "Crystal", stackSize: 100 },
-            { name: "Obsidian", stackSize: 100 },
-            { name: "Hide", stackSize: 1000 },
-            { name: "Chitin", stackSize: 1000 },
-            { name: "Keratin", stackSize: 1000 },
-            { name: "Pelt", stackSize: 100 },
-            { name: "Raw Meat", stackSize: 100 },
-            { name: "Cooked Meat", stackSize: 100 },
-            { name: "Spoiled Meat", stackSize: 100 },
-            { name: "Raw Fish Meat", stackSize: 100 },
-            { name: "Cooked Fish Meat", stackSize: 100 },
-            { name: "Silica Pearls", stackSize: 100 },
-            { name: "Oil", stackSize: 100 },
-            { name: "Polymer", stackSize: 100 },
-            { name: "Cementing Paste", stackSize: 100 },
-            { name: "Charcoal", stackSize: 1000 },
-            { name: "Gunpowder", stackSize: 100 },
-            { name: "Sparkpowder", stackSize: 100 },
-            { name: "Electronics", stackSize: 100 },
-            { name: "Metal Ingot", stackSize: 100 },
-            { name: "Gasoline", stackSize: 100 },
-            { name: "Narcotic", stackSize: 100 },
-            { name: "Stimulant", stackSize: 100 },
-            { name: "Arrow", stackSize: 50 },
-            { name: "Waterskin", stackSize: 1 },
-            { name: "Water Jar", stackSize: 1 },
-            { name: "Canteen", stackSize: 1 },
-            { name: "Simple Rifle Ammo", stackSize: 100 },
-            { name: "Advanced Rifle Ammo", stackSize: 50 },
-            { name: "Shotgun Ammo", stackSize: 50 },
-            { name: "Tranquilizer Arrow", stackSize: 50 },
-            { name: "Organic Polymer", stackSize: 10 },
-            { name: "Water", stackSize: 1 },
-            { name: "Citronal", stackSize: 100 },
-            { name: "Longrass", stackSize: 100 },
-            { name: "Rockarrot", stackSize: 100 },
-            { name: "Savoroot", stackSize: 100 },
-            { name: "Rare Flower", stackSize: 100 },
-            { name: "Rare Mushroom", stackSize: 100 },
-            { name: "Giant Bee Honey", stackSize: 100 },
-            { name: "Sap", stackSize: 100 },
-            { name: "Small Egg", stackSize: 100 },
-            { name: "Medium Egg", stackSize: 100 },
-            { name: "Large Egg", stackSize: 100 },
-            { name: "Extra Large Egg", stackSize: 100 },
-            { name: "Special Egg", stackSize: 100 },
-            { name: "Black Pearl", stackSize: 100 },
-            { name: "Element", stackSize: 100 },
-            { name: "Element Shards", stackSize: 1000 },
-            { name: "Angler Gel", stackSize: 100 },
-            { name: "Blue Gem", stackSize: 100 },
-            { name: "Green Gem", stackSize: 100 },
-            { name: "Red Gem", stackSize: 100 },
-            { name: "Congealed Gas Ball", stackSize: 100 },
-            { name: "Fungal Wood", stackSize: 1000 },
-            { name: "Sand", stackSize: 1000 },
-            { name: "Clay", stackSize: 100 },
-            { name: "Salt", stackSize: 100 },
-            { name: "Sulfur", stackSize: 100 },
-            { name: "Plant Species X Seed", stackSize: 100 },
-            { name: "Simple Bullet", stackSize: 50 },
-            { name: "Simple Shotgun Ammo", stackSize: 50 },
-            { name: "Simple Rifle Bullet", stackSize: 50 },
-            { name: "Propellant", stackSize: 100 },
-            { name: "Explosives", stackSize: 100 },
-            { name: "Advanced Gunpowder", stackSize: 100 },
-            { name: "Cannon Ball", stackSize: 50 },
-            { name: "Simple Cannon Ball", stackSize: 50 },
-            { name: "Advanced Bullet", stackSize: 50 },
-            { name: "Rocket Propelled Grenade", stackSize: 50 },
-            { name: "C4 Charge", stackSize: 10 },
-            { name: "Ammonium", stackSize: 100 }
+        const craftingStations = [
+            "Inventory", "Campfire", "Mortar and Pestle", "Cooking Pot",
+            "Smithy", "Fabricator", "Chemistry Bench", "Industrial Forge",
+            "Industrial Cooker", "Industrial Grinder", "Tek Replicator"
         ];
 
-        // Complete recipe list with accurate quantities for both Mortar and Pestle and Chemistry Bench
-        const defaultRecipes = [
-            // Narcotic
-            {
-                name: "Narcotic",
-                craftingOptions: [
-                    {
-                        craftingStation: "Mortar and Pestle",
-                        ingredients: [
-                            { name: "Narcoberry", quantity: 5 },
-                            { name: "Spoiled Meat", quantity: 1 }
-                        ]
-                    },
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Narcoberry", quantity: 20 },
-                            { name: "Spoiled Meat", quantity: 4 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 100,
-                category: "resource"
-            },
-            
-            // Stimulant
-            {
-                name: "Stimulant",
-                craftingOptions: [
-                    {
-                        craftingStation: "Mortar and Pestle",
-                        ingredients: [
-                            { name: "Stimberry", quantity: 5 },
-                            { name: "Spoiled Meat", quantity: 1 }
-                        ]
-                    },
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Stimberry", quantity: 20 },
-                            { name: "Spoiled Meat", quantity: 4 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 100,
-                category: "resource"
-            },
-            
-            // Sparkpowder
-            {
-                name: "Sparkpowder",
-                craftingOptions: [
-                    {
-                        craftingStation: "Mortar and Pestle",
-                        ingredients: [
-                            { name: "Flint", quantity: 2 },
-                            { name: "Stone", quantity: 1 }
-                        ]
-                    },
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Flint", quantity: 8 },
-                            { name: "Stone", quantity: 4 }
-                        ]
-                    }
-                ],
-                yields: 2,
-                craftedItemStackSize: 100,
-                category: "resource"
-            },
-            
-            // Gunpowder
-            {
-                name: "Gunpowder",
-                craftingOptions: [
-                    {
-                        craftingStation: "Mortar and Pestle",
-                        ingredients: [
-                            { name: "Charcoal", quantity: 1 },
-                            { name: "Sparkpowder", quantity: 1 }
-                        ]
-                    },
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Charcoal", quantity: 4 },
-                            { name: "Sparkpowder", quantity: 4 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 100,
-                category: "resource"
-            },
-            
-            // Cementing Paste
-            {
-                name: "Cementing Paste",
-                craftingOptions: [
-                    {
-                        craftingStation: "Mortar and Pestle",
-                        ingredients: [
-                            { name: "Chitin", quantity: 4 },
-                            { name: "Stone", quantity: 8 }
-                        ]
-                    },
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Chitin", quantity: 16 },
-                            { name: "Stone", quantity: 32 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 100,
-                category: "resource"
-            },
-            
-            // Gasoline
-            {
-                name: "Gasoline",
-                craftingOptions: [
-                    {
-                        craftingStation: "Mortar and Pestle",
-                        ingredients: [
-                            { name: "Hide", quantity: 5 },
-                            { name: "Oil", quantity: 3 }
-                        ]
-                    },
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Hide", quantity: 20 },
-                            { name: "Oil", quantity: 12 }
-                        ]
-                    }
-                ],
-                yields: 5,
-                craftedItemStackSize: 100,
-                category: "resource"
-            },
-            
-            // Simple Bullet
-            {
-                name: "Simple Bullet",
-                craftingOptions: [
-                    {
-                        craftingStation: "Mortar and Pestle",
-                        ingredients: [
-                            { name: "Gunpowder", quantity: 1 },
-                            { name: "Metal Ingot", quantity: 1 }
-                        ]
-                    },
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Gunpowder", quantity: 4 },
-                            { name: "Metal Ingot", quantity: 4 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 50,
-                category: "ammunition"
-            },
-            
-            // Simple Shotgun Ammo
-            {
-                name: "Simple Shotgun Ammo",
-                craftingOptions: [
-                    {
-                        craftingStation: "Mortar and Pestle",
-                        ingredients: [
-                            { name: "Gunpowder", quantity: 3 },
-                            { name: "Metal Ingot", quantity: 1 }
-                        ]
-                    },
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Gunpowder", quantity: 12 },
-                            { name: "Metal Ingot", quantity: 4 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 50,
-                category: "ammunition"
-            },
-            
-            // Simple Rifle Bullet
-            {
-                name: "Simple Rifle Bullet",
-                craftingOptions: [
-                    {
-                        craftingStation: "Mortar and Pestle",
-                        ingredients: [
-                            { name: "Gunpowder", quantity: 6 },
-                            { name: "Metal Ingot", quantity: 2 }
-                        ]
-                    },
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Gunpowder", quantity: 24 },
-                            { name: "Metal Ingot", quantity: 8 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 50,
-                category: "ammunition"
-            },
-            
-            // Propellant
-            {
-                name: "Propellant",
-                craftingOptions: [
-                    {
-                        craftingStation: "Mortar and Pestle",
-                        ingredients: [
-                            { name: "Charcoal", quantity: 5 },
-                            { name: "Sparkpowder", quantity: 2 },
-                            { name: "Oil", quantity: 1 }
-                        ]
-                    },
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Charcoal", quantity: 20 },
-                            { name: "Sparkpowder", quantity: 8 },
-                            { name: "Oil", quantity: 4 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 100,
-                category: "resource"
-            },
-            
-            // Black Pearl
-            {
-                name: "Black Pearl",
-                craftingOptions: [
-                    {
-                        craftingStation: "Mortar and Pestle",
-                        ingredients: [
-                            { name: "Silica Pearls", quantity: 5 },
-                            { name: "Oil", quantity: 1 }
-                        ]
-                    },
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Silica Pearls", quantity: 20 },
-                            { name: "Oil", quantity: 4 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 100,
-                category: "resource"
-            },
-            
-            // Clay
-            {
-                name: "Clay",
-                craftingOptions: [
-                    {
-                        craftingStation: "Mortar and Pestle",
-                        ingredients: [
-                            { name: "Stone", quantity: 2 },
-                            { name: "Sand", quantity: 2 }
-                        ]
-                    },
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Stone", quantity: 8 },
-                            { name: "Sand", quantity: 8 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 100,
-                category: "resource"
-            },
-            
-            // Chemistry Bench Only Recipes
-            
-            // Advanced Gunpowder
-            {
-                name: "Advanced Gunpowder",
-                craftingOptions: [
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Gunpowder", quantity: 1 },
-                            { name: "Ammonium", quantity: 1 }
-                        ]
-                    }
-                ],
-                yields: 3,
-                craftedItemStackSize: 100,
-                category: "resource"
-            },
-            
-            // Cannon Ball
-            {
-                name: "Cannon Ball",
-                craftingOptions: [
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Metal Ingot", quantity: 5 },
-                            { name: "Gunpowder", quantity: 20 },
-                            { name: "Propellant", quantity: 2 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 50,
-                category: "ammunition"
-            },
-            
-            // Simple Cannon Ball
-            {
-                name: "Simple Cannon Ball",
-                craftingOptions: [
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Stone", quantity: 2 },
-                            { name: "Gunpowder", quantity: 3 },
-                            { name: "Flint", quantity: 3 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 50,
-                category: "ammunition"
-            },
-            
-            // Explosives
-            {
-                name: "Explosives",
-                craftingOptions: [
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Gunpowder", quantity: 5 },
-                            { name: "Crystal", quantity: 1 },
-                            { name: "Sulfur", quantity: 5 },
-                            { name: "Oil", quantity: 2 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 100,
-                category: "resource"
-            },
-            
-            // Rocket Propelled Grenade
-            {
-                name: "Rocket Propelled Grenade",
-                craftingOptions: [
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Gunpowder", quantity: 60 },
-                            { name: "Metal Ingot", quantity: 15 },
-                            { name: "Crystal", quantity: 10 },
-                            { name: "Propellant", quantity: 5 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 50,
-                category: "ammunition"
-            },
-            
-            // C4 Charge
-            {
-                name: "C4 Charge",
-                craftingOptions: [
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Explosives", quantity: 3 },
-                            { name: "Electronics", quantity: 1 },
-                            { name: "Crystal", quantity: 5 },
-                            { name: "Polymer", quantity: 5 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 10,
-                category: "ammunition"
-            },
-            
-            // Organic Polymer conversion recipe
-            {
-                name: "Polymer",
-                craftingOptions: [
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Organic Polymer", quantity: 2 }
-                        ]
-                    },
-                    {
-                        craftingStation: "Fabricator",
-                        ingredients: [
-                            { name: "Cementing Paste", quantity: 2 },
-                            { name: "Obsidian", quantity: 2 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 100,
-                category: "resource"
-            },
-            
-            // Ammonium
-            {
-                name: "Ammonium",
-                craftingOptions: [
-                    {
-                        craftingStation: "Chemistry Bench",
-                        ingredients: [
-                            { name: "Salt", quantity: 3 },
-                            { name: "Oil", quantity: 3 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 100,
-                category: "resource"
-            },
-            
-            // Fabricator Recipes
-            {
-                name: "Electronics",
-                craftingOptions: [
-                    {
-                        craftingStation: "Fabricator",
-                        ingredients: [
-                            { name: "Silica Pearls", quantity: 3 },
-                            { name: "Metal Ingot", quantity: 2 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 100,
-                category: "resource"
-            },
-            
-            // Cooking Pot Recipes
-            {
-                name: "Basic Kibble",
-                craftingOptions: [
-                    {
-                        craftingStation: "Cooking Pot",
-                        ingredients: [
-                            { name: "Mejoberry", quantity: 2 },
-                            { name: "Fiber", quantity: 1 },
-                            { name: "Raw Meat", quantity: 1 },
-                            { name: "Small Egg", quantity: 1 },
-                            { name: "Water", quantity: 1 }
-                        ]
-                    },
-                    {
-                        craftingStation: "Industrial Cooker",
-                        ingredients: [
-                            { name: "Mejoberry", quantity: 2 },
-                            { name: "Fiber", quantity: 1 },
-                            { name: "Raw Meat", quantity: 1 },
-                            { name: "Small Egg", quantity: 1 },
-                            { name: "Water", quantity: 1 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 100,
-                category: "consumable"
-            },
-            
-            // Simple Kibble
-            {
-                name: "Simple Kibble",
-                craftingOptions: [
-                    {
-                        craftingStation: "Cooking Pot",
-                        ingredients: [
-                            { name: "Mejoberry", quantity: 2 },
-                            { name: "Cooked Meat", quantity: 1 },
-                            { name: "Fiber", quantity: 2 },
-                            { name: "Medium Egg", quantity: 1 },
-                            { name: "Water", quantity: 1 }
-                        ]
-                    },
-                    {
-                        craftingStation: "Industrial Cooker",
-                        ingredients: [
-                            { name: "Mejoberry", quantity: 2 },
-                            { name: "Cooked Meat", quantity: 1 },
-                            { name: "Fiber", quantity: 2 },
-                            { name: "Medium Egg", quantity: 1 },
-                            { name: "Water", quantity: 1 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 100,
-                category: "consumable"
-            },
-            
-            // Industrial Forge Recipes
-            {
-                name: "Metal Ingot",
-                craftingOptions: [
-                    {
-                        craftingStation: "Inventory",
-                        ingredients: [
-                            { name: "Metal", quantity: 2 }
-                        ]
-                    },
-                    {
-                        craftingStation: "Industrial Forge",
-                        ingredients: [
-                            { name: "Metal", quantity: 2 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 100,
-                category: "resource"
-            },
-            
-            // Inventory Recipes
-            {
-                name: "Thatch Foundation",
-                craftingOptions: [
-                    {
-                        craftingStation: "Inventory",
-                        ingredients: [
-                            { name: "Thatch", quantity: 15 },
-                            { name: "Fiber", quantity: 9 }
-                        ]
-                    }
-                ],
-                yields: 1,
-                craftedItemStackSize: 1,
-                category: "building"
-            }
-        ];
-
-        // App state (using variables instead of localStorage)
-        let craftingStations = [...defaultCraftingStations];
-        let storageContainers = [...defaultStorageContainers];
-        let ingredients = [...defaultIngredients];
-        let recipes = [...defaultRecipes];
+        // Global variables
         let currentRecipe = null;
-        let currentCraftingOption = 0;
+        let ingredientCounter = 0;
 
-        // DOM Elements
-        const recipeList = document.getElementById('recipe-list');
-        const recipeSearch = document.getElementById('recipe-search');
-        const stationFilter = document.getElementById('station-filter');
-        const craftingStationSelect = document.getElementById('crafting-station');
-        const stationSlots = document.getElementById('station-slots');
-        const recipeDetails = document.getElementById('recipe-details');
-        const ingredientsContainer = document.getElementById('ingredients-container');
-        const craftingOptionsSelect = document.getElementById('crafting-options-select');
-        const calculateBtn = document.getElementById('calculate-btn');
-        const editBtn = document.getElementById('edit-btn');
-        const exportBtn = document.getElementById('export-btn');
-        const importBtn = document.getElementById('import-btn');
-        const fileInput = document.getElementById('file-input');
-        const storageSelect = document.getElementById('storage-select');
-        const resultsSection = document.getElementById('results-section');
-        const stationResultsBody = document.getElementById('station-results-body');
-        const storageResultsBody = document.getElementById('storage-results-body');
-        const craftingAmount = document.getElementById('crafting-amount');
-        const recipeName = document.getElementById('recipe-name');
-        const stationInfo = document.getElementById('station-info');
-        
-        // Modal Elements
-        const editModalOverlay = document.getElementById('edit-modal-overlay');
-        const modalClose = document.querySelector('.modal-close');
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const tabContents = document.querySelectorAll('.tab-content');
-        const saveBtn = document.querySelector('.save-btn');
-        
-        // Update crafting station dropdown
-        function updateCraftingStationDropdown() {
-            craftingStationSelect.innerHTML = '';
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            populateRecipeList();
+            populateStorageList();
+            populateCraftingStations();
+            populateStorageDropdown();
+            setupCustomRecipe();
+            setupEventListeners();
             
-            // If no recipe is selected, show all stations
-            if (!currentRecipe) {
-                craftingStations.forEach(station => {
-                    const option = document.createElement('option');
-                    option.value = station.name;
-                    option.textContent = `${station.name} (slot capacity: ${station.slotCapacity})`;
-                    craftingStationSelect.appendChild(option);
-                });
-            } else {
-                // If a recipe is selected, only show relevant stations
-                const relevantStations = currentRecipe.craftingOptions.map(opt => opt.craftingStation);
-                
-                // Filter stations and sort alphabetically
-                const filteredStations = craftingStations
-                    .filter(station => relevantStations.includes(station.name))
-                    .sort((a, b) => a.name.localeCompare(b.name));
-                
-                // Add options for each relevant station
-                filteredStations.forEach(station => {
-                    const option = document.createElement('option');
-                    option.value = station.name;
-                    option.textContent = `${station.name} (slot capacity: ${station.slotCapacity})`;
-                    craftingStationSelect.appendChild(option);
-                });
-                
-                // If no options were added (should not happen, but just in case)
-                if (craftingStationSelect.options.length === 0) {
-                    const defaultStation = craftingStations[0];
-                    const option = document.createElement('option');
-                    option.value = defaultStation.name;
-                    option.textContent = `${defaultStation.name} (slot capacity: ${defaultStation.slotCapacity})`;
-                    craftingStationSelect.appendChild(option);
-                }
-            }
-        }
+            // Start with default recipe (Narcotic)
+            selectRecipe(recipes[0]);
+        });
 
-        // Update crafting option dropdown based on selected recipe and station
-        function updateCraftingOptionDropdown() {
-            if (!currentRecipe) return;
-            
-            const selectedStation = craftingStationSelect.value;
-            craftingOptionsSelect.innerHTML = '';
-            
-            // Sort options to prioritize the selected station
-            const sortedOptions = [...currentRecipe.craftingOptions].sort((a, b) => {
-                if (a.craftingStation === selectedStation) return -1;
-                if (b.craftingStation === selectedStation) return 1;
-                return 0;
-            });
-            
-            sortedOptions.forEach((option) => {
-                const optElement = document.createElement('option');
-                const index = currentRecipe.craftingOptions.indexOf(option);
-                optElement.value = index;
-                optElement.textContent = `${option.craftingStation} - ${summarizeIngredients(option.ingredients)}`;
-                craftingOptionsSelect.appendChild(optElement);
-            });
-            
-            // Set the dropdown value to current option
-            craftingOptionsSelect.value = currentCraftingOption;
-        }
-
-        // Helper to summarize ingredients for dropdown display
-        function summarizeIngredients(ingredients) {
-            if (ingredients.length <= 2) {
-                return ingredients.map(ing => `${ing.quantity} ${ing.name}`).join(', ');
-            } else {
-                return `${ingredients.length} ingredients`;
-            }
-        }
-
-        // Update station slots based on selected station
-        function updateStationSlots() {
-            const stationName = craftingStationSelect.value;
-            const station = craftingStations.find(s => s.name === stationName);
-            
-            if (station) {
-                stationSlots.value = station.slotCapacity;
-                stationInfo.textContent = `${station.name} has ${station.slotCapacity} available slots for crafting resources.`;
-            }
-        }
-
-        // Populate the recipe list
+        // Populate the recipe list in the left sidebar
         function populateRecipeList() {
+            const recipeList = document.getElementById('recipe-list');
             recipeList.innerHTML = '';
             
-            const stationValue = stationFilter.value;
-            const searchValue = recipeSearch.value.toLowerCase();
-            
-            // Check if the favorites filter is active
-            const favoritesOnly = document.getElementById('favorites-only') ? 
-                                document.getElementById('favorites-only').checked : false;
-            
-            // Get favorites from localStorage
-            const favorites = JSON.parse(localStorage.getItem('arkFavorites') || '[]');
-            
-            // Check if the category filter is active
-            const categorySelect = document.getElementById('category-filter');
-            const categoryValue = categorySelect ? categorySelect.value : 'all';
-            
-            // Get recipes that match all filters
-            const filteredRecipes = recipes.filter(recipe => {
-                // Check if any crafting option matches the station filter
-                const matchesStation = stationValue === 'all' || 
-                                      recipe.craftingOptions.some(opt => opt.craftingStation === stationValue);
+            recipes.forEach((recipe, index) => {
+                const recipeItem = document.createElement('div');
+                recipeItem.className = 'recipe-item';
+                recipeItem.textContent = recipe.name;
+                recipeItem.dataset.index = index;
                 
-                // Check if the recipe name matches the search filter
-                const matchesSearch = recipe.name.toLowerCase().includes(searchValue);
-                
-                // Check if the recipe is a favorite (if favorites filter is on)
-                const matchesFavorites = !favoritesOnly || favorites.includes(recipe.name);
-                
-                // Check if the recipe category matches the category filter (if it exists)
-                const matchesCategory = !categorySelect || categoryValue === 'all' || recipe.category === categoryValue;
-                
-                return matchesStation && matchesSearch && matchesFavorites && matchesCategory;
-            });
-            
-            // Sort recipes appropriately
-            let sortedRecipes = [...filteredRecipes];
-            
-            if (favoritesOnly || favorites.length > 0) {
-                // Sort recipes: favorites first, then alphabetically
-                sortedRecipes.sort((a, b) => {
-                    const aIsFavorite = favorites.includes(a.name);
-                    const bIsFavorite = favorites.includes(b.name);
-                    
-                    if (aIsFavorite && !bIsFavorite) return -1;
-                    if (!aIsFavorite && bIsFavorite) return 1;
-                    
-                    return a.name.localeCompare(b.name);
-                });
-            } else {
-                // Just sort alphabetically by name
-                sortedRecipes.sort((a, b) => a.name.localeCompare(b.name));
-            }
-            
-            sortedRecipes.forEach(recipe => {
-                const item = document.createElement('div');
-                item.classList.add('recipe-item');
-                
-                // Add favorite styling if applicable
-                if (favorites.includes(recipe.name)) {
-                    item.classList.add('favorite');
-                    item.style.borderLeft = '3px solid #f39c12';
-                }
-                
-                item.textContent = recipe.name;
-                
-                item.addEventListener('click', () => {
-                    selectRecipe(recipe);
-                    document.querySelectorAll('.recipe-item').forEach(el => {
-                        el.classList.remove('selected');
+                recipeItem.addEventListener('click', function() {
+                    selectRecipe(recipes[index]);
+                    document.querySelectorAll('.recipe-item').forEach(item => {
+                        item.classList.remove('selected');
                     });
-                    item.classList.add('selected');
+                    recipeItem.classList.add('selected');
                 });
                 
-                recipeList.appendChild(item);
-            });
-            
-            // Add favorite toggle icons
-            const recipeItems = document.querySelectorAll('.recipe-item');
-            recipeItems.forEach(item => {
-                const recipeName = item.textContent;
-                const isFavorite = favorites.includes(recipeName);
-                
-                // Create star icon
-                const starIcon = document.createElement('span');
-                starIcon.textContent = isFavorite ? '★' : '☆';
-                starIcon.className = 'favorite-star';
-                starIcon.style.float = 'right';
-                starIcon.style.color = isFavorite ? '#f39c12' : '#bdc3c7';
-                starIcon.style.cursor = 'pointer';
-                starIcon.style.fontSize = '16px';
-                starIcon.style.marginRight = '5px';
-                
-                // Add click event to toggle favorite
-                starIcon.addEventListener('click', function(e) {
-                    e.stopPropagation(); // Prevent recipe selection
-                    
-                    const favorites = JSON.parse(localStorage.getItem('arkFavorites') || '[]');
-                    const index = favorites.indexOf(recipeName);
-                    
-                    if (index === -1) {
-                        // Add to favorites
-                        favorites.push(recipeName);
-                        starIcon.textContent = '★';
-                        starIcon.style.color = '#f39c12';
-                        item.classList.add('favorite');
-                        item.style.borderLeft = '3px solid #f39c12';
-                    } else {
-                        // Remove from favorites
-                        favorites.splice(index, 1);
-                        starIcon.textContent = '☆';
-                        starIcon.style.color = '#bdc3c7';
-                        item.classList.remove('favorite');
-                        item.style.borderLeft = 'none';
-                    }
-                    
-                    localStorage.setItem('arkFavorites', JSON.stringify(favorites));
-                    
-                    // Re-filter if favorites-only is checked
-                    if (document.getElementById('favorites-only') && document.getElementById('favorites-only').checked) {
-                        filterRecipes();
-                    }
-                });
-                
-                // Add to recipe item
-                item.appendChild(starIcon);
-            });
-            
-            // Apply search highlighting if needed
-            if (searchValue) {
-                const recipeItems = document.querySelectorAll('.recipe-item');
-                recipeItems.forEach(item => {
-                    const text = item.childNodes[0].textContent;
-                    const lowerText = text.toLowerCase();
-                    
-                    if (lowerText.includes(searchValue)) {
-                        const startIndex = lowerText.indexOf(searchValue);
-                        const highlightedText = 
-                            text.substring(0, startIndex) + 
-                            `<span style="background-color: #ffeb3b;">${text.substring(startIndex, startIndex + searchValue.length)}</span>` + 
-                            text.substring(startIndex + searchValue.length);
-                        
-                        item.childNodes[0].nodeValue = '';
-                        const span = document.createElement('span');
-                        span.innerHTML = highlightedText;
-                        item.insertBefore(span, item.firstChild);
-                    }
-                });
-            }
-        }
-
-        // Filter recipes
-        function filterRecipes() {
-            populateRecipeList();
-        }
-
-        // Select a recipe
-        function selectRecipe(recipe) {
-            currentRecipe = recipe;
-            recipeName.textContent = recipe.name;
-            
-            // Update crafting station dropdown with only relevant stations
-            updateCraftingStationDropdown();
-            
-            // Find the best crafting option based on current station
-            const currentStation = craftingStationSelect.value;
-            const matchingOption = recipe.craftingOptions.findIndex(
-                option => option.craftingStation === currentStation
-            );
-            
-            if (matchingOption >= 0) {
-                currentCraftingOption = matchingOption;
-            } else {
-                // Default to first option if no match
-                currentCraftingOption = 0;
-                
-                // Update station to match the first crafting option
-                const firstOptionStation = recipe.craftingOptions[0].craftingStation;
-                craftingStationSelect.value = firstOptionStation;
-                updateStationSlots();
-            }
-            
-            // Update crafting options dropdown
-            updateCraftingOptionDropdown();
-            
-            // Display recipe details
-            displayRecipeDetails(recipe);
-            
-            // Show recipe details section
-            recipeDetails.style.display = 'block';
-            
-            // Hide results section
-            resultsSection.style.display = 'none';
-        }
-
-        // Display recipe details
-        function displayRecipeDetails(recipe) {
-            if (!recipe || !recipe.craftingOptions || recipe.craftingOptions.length === 0) return;
-            
-            // Get current crafting option
-            const option = recipe.craftingOptions[currentCraftingOption];
-            if (!option) return;
-            
-            // Update ingredients container
-            ingredientsContainer.innerHTML = '';
-            
-            option.ingredients.forEach(ingredient => {
-                const div = document.createElement('div');
-                div.classList.add('ingredient-row');
-                
-                const stackSize = getIngredientStackSize(ingredient.name);
-                
-                div.innerHTML = `
-                    <label>${ingredient.name}:</label>
-                    <span>${ingredient.quantity} (Stack Size: ${stackSize})</span>
-                `;
-                
-                ingredientsContainer.appendChild(div);
-            });
-            
-            // Add yield information
-            const yieldDiv = document.createElement('div');
-            yieldDiv.classList.add('info-label');
-            yieldDiv.innerHTML = `This recipe yields ${recipe.yields} ${recipe.name} per craft using ${option.craftingStation}. <br>Crafted item stack size: ${recipe.craftedItemStackSize || 1}`;
-            ingredientsContainer.appendChild(yieldDiv);
-        }
-
-        // Get ingredient stack size
-        function getIngredientStackSize(name) {
-            const ingredient = ingredients.find(i => i.name === name);
-            return ingredient ? ingredient.stackSize : 100;
-        }
-
-        // Calculate optimal resources
-        function calculate() {
-            if (!currentRecipe || !currentRecipe.craftingOptions) {
-                alert('Please select a recipe first.');
-                return;
-            }
-            
-            // Get current crafting option
-            const option = currentRecipe.craftingOptions[currentCraftingOption];
-            if (!option) {
-                alert('Invalid crafting option.');
-                return;
-            }
-            
-            // Get station capacity
-            const stationCapacity = parseInt(stationSlots.value) || 100;
-            
-            // Calculate optimal resource distribution
-            const resources = optimizeResources(currentRecipe, option, stationCapacity);
-            
-            // Calculate storage requirements
-            const storage = calculateStorage(resources.craftingAmount, currentRecipe);
-            
-            // Display results
-            displayResults(resources, storage);
-            
-            // Show results section
-            resultsSection.style.display = 'block';
-        }
-
-        // Optimize resources for crafting station
-        function optimizeResources(recipe, craftingOption, stationCapacity) {
-            // Get the total resource requirements for the recipe
-            const resourceRequirements = [];
-            
-            craftingOption.ingredients.forEach(ingredient => {
-                const stackSize = getIngredientStackSize(ingredient.name);
-                resourceRequirements.push({
-                    name: ingredient.name,
-                    quantity: ingredient.quantity,
-                    stackSize: stackSize,
-                    proportion: ingredient.quantity / recipe.yields
-                });
-            });
-            
-            // Calculate how many slots each resource would take up if proportionally distributed
-            const totalProportion = resourceRequirements.reduce((sum, resource) => sum + resource.proportion, 0);
-            
-            resourceRequirements.forEach(resource => {
-                // Initial slot allocation based on proportion
-                const proportionalSlots = (resource.proportion / totalProportion) * stationCapacity;
-                resource.allocatedSlots = Math.round(proportionalSlots);
-                
-                // Ensure at least one slot per resource
-                if (resource.allocatedSlots < 1) {
-                    resource.allocatedSlots = 1;
-                }
-                
-                // Calculate how many items would fit in these slots
-                resource.allocatedQuantity = resource.allocatedSlots * resource.stackSize;
-            });
-            
-            // Adjust slot allocation to match station capacity
-            let totalAllocatedSlots = resourceRequirements.reduce((sum, resource) => sum + resource.allocatedSlots, 0);
-            
-            // If we've allocated too many slots, reduce
-            while (totalAllocatedSlots > stationCapacity) {
-                // Find the resource with the most allocated slots
-                const maxResource = resourceRequirements.reduce((max, resource) => 
-                    resource.allocatedSlots > max.allocatedSlots ? resource : max, 
-                    resourceRequirements[0]
-                );
-                
-                // Reduce its allocation by 1 if possible
-                if (maxResource.allocatedSlots > 1) {
-                    maxResource.allocatedSlots--;
-                    maxResource.allocatedQuantity = maxResource.allocatedSlots * maxResource.stackSize;
-                    totalAllocatedSlots--;
-                } else {
-                    // If we can't reduce any further, break
-                    break;
-                }
-            }
-            
-            // If we haven't allocated enough slots, increase
-            while (totalAllocatedSlots < stationCapacity) {
-                // Find the resource with the lowest allocated slots relative to its proportion
-                const minResource = resourceRequirements.reduce((min, resource) => {
-                    const relativeProportion = resource.allocatedSlots / resource.proportion;
-                    const minRelativeProportion = min.allocatedSlots / min.proportion;
-                    return relativeProportion < minRelativeProportion ? resource : min;
-                }, resourceRequirements[0]);
-                
-                // Increase its allocation by 1
-                minResource.allocatedSlots++;
-                minResource.allocatedQuantity = minResource.allocatedSlots * minResource.stackSize;
-                totalAllocatedSlots++;
-            }
-            
-            // Calculate how many complete recipes can be crafted
-            const craftingMultiples = resourceRequirements.map(resource => 
-                Math.floor(resource.allocatedQuantity / resource.quantity)
-            );
-            
-            const craftingAmount = Math.min(...craftingMultiples) * recipe.yields;
-            
-            return {
-                resources: resourceRequirements,
-                craftingAmount: craftingAmount,
-                totalAllocatedSlots: totalAllocatedSlots
-            };
-        }
-
-        // Calculate storage requirements for crafted items
-        function calculateStorage(craftingAmount, recipe) {
-            const storageType = storageSelect.value;
-            const storageContainer = storageContainers.find(c => c.capacity.toString() === storageType) || 
-                                    { name: "Custom Storage", capacity: parseInt(storageType) || 100 };
-            
-            const craftedItemStackSize = recipe.craftedItemStackSize || 1;
-            const slotsRequired = Math.ceil(craftingAmount / craftedItemStackSize);
-            
-            return {
-                storageType: storageContainer.name,
-                capacity: storageContainer.capacity,
-                slotsRequired: slotsRequired,
-                totalItems: craftingAmount
-            };
-        }
-
-        // Display calculation results
-        function displayResults(resources, storage) {
-            // Update station results
-            stationResultsBody.innerHTML = '';
-            
-            resources.resources.forEach(resource => {
-                const percentage = Math.round((resource.allocatedSlots / resources.totalAllocatedSlots) * 100);
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${resource.name}</td>
-                    <td>${resource.allocatedQuantity}</td>
-                    <td>${resource.stackSize}</td>
-                    <td>${resource.allocatedSlots}</td>
-                    <td>${percentage}%</td>
-                `;
-                
-                stationResultsBody.appendChild(row);
-            });
-            
-            craftingAmount.textContent = resources.craftingAmount;
-            
-            // Update storage results
-            storageResultsBody.innerHTML = '';
-            
-            const storageRow = document.createElement('tr');
-            storageRow.innerHTML = `
-                <td>${storage.storageType}</td>
-                <td>${storage.slotsRequired}</td>
-                <td>${storage.totalItems}</td>
-            `;
-            
-            storageResultsBody.appendChild(storageRow);
-        }
-
-        // Open edit modal
-        function openEditModal() {
-            // Populate first tab
-            populateTabContent('stations-tab');
-            
-            // Show modal
-            editModalOverlay.style.display = 'flex';
-        }
-
-        // Close edit modal
-        function closeEditModal() {
-            editModalOverlay.style.display = 'none';
-        }
-
-        // Populate tab content based on tab id
-        function populateTabContent(tabId) {
-            switch (tabId) {
-                case 'stations-tab':
-                    populateCraftingStationsTab();
-                    break;
-                case 'ingredients-tab':
-                    populateIngredientsTab();
-                    break;
-                case 'recipes-tab':
-                    populateRecipesTab();
-                    break;
-                case 'storage-tab':
-                    populateStorageTab();
-                    break;
-            }
-        }
-
-        // Populate crafting stations tab
-        function populateCraftingStationsTab() {
-            const tableBody = document.getElementById('stations-table-body');
-            tableBody.innerHTML = '';
-            
-            craftingStations.forEach((station, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${station.name}</td>
-                    <td>${station.slotCapacity}</td>
-                    <td>
-                        <button class="edit-row-btn" data-index="${index}">Edit</button>
-                    </td>
-                `;
-                
-                const editBtn = row.querySelector('.edit-row-btn');
-                editBtn.addEventListener('click', () => {
-                    const newName = prompt('Enter station name:', station.name);
-                    const newCapacity = prompt('Enter slot capacity:', station.slotCapacity);
-                    
-                    if (newName && newCapacity) {
-                        craftingStations[index] = {
-                            name: newName,
-                            slotCapacity: parseInt(newCapacity) || station.slotCapacity
-                        };
-                        
-                        populateCraftingStationsTab();
-                    }
-                });
-                
-                tableBody.appendChild(row);
+                recipeList.appendChild(recipeItem);
             });
         }
 
-        // Populate ingredients tab
-        function populateIngredientsTab() {
-            const tableBody = document.getElementById('ingredients-table-body');
-            const searchInput = document.getElementById('ingredient-search');
-            tableBody.innerHTML = '';
-            
-            const searchValue = searchInput.value ? searchInput.value.toLowerCase() : '';
-            
-            const filteredIngredients = ingredients.filter(ingredient => 
-                ingredient.name.toLowerCase().includes(searchValue)
-            );
-            
-            filteredIngredients.forEach((ingredient, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${ingredient.name}</td>
-                    <td>${ingredient.stackSize}</td>
-                    <td>
-                        <button class="edit-row-btn" data-index="${index}">Edit</button>
-                    </td>
-                `;
-                
-                const editBtn = row.querySelector('.edit-row-btn');
-                editBtn.addEventListener('click', () => {
-                    const actualIndex = ingredients.findIndex(i => i.name === ingredient.name);
-                    
-                    const newName = prompt('Enter ingredient name:', ingredient.name);
-                    const newStackSize = prompt('Enter stack size:', ingredient.stackSize);
-                    
-                    if (newName && newStackSize) {
-                        ingredients[actualIndex] = {
-                            name: newName,
-                            stackSize: parseInt(newStackSize) || ingredient.stackSize
-                        };
-                        
-                        populateIngredientsTab();
-                    }
-                });
-                
-                tableBody.appendChild(row);
-            });
-            
-            // Add search event listener
-            searchInput.addEventListener('input', populateIngredientsTab);
-        }
-
-        // Populate recipes tab
-        function populateRecipesTab() {
-            const tableBody = document.getElementById('recipes-table-body');
-            const searchInput = document.getElementById('recipe-modal-search');
-            tableBody.innerHTML = '';
-            
-            const searchValue = searchInput.value ? searchInput.value.toLowerCase() : '';
-            
-            const filteredRecipes = recipes.filter(recipe => 
-                recipe.name.toLowerCase().includes(searchValue)
-            );
-            
-            // Sort recipes alphabetically by name
-            filteredRecipes.sort((a, b) => a.name.localeCompare(b.name));
-            
-            filteredRecipes.forEach((recipe, index) => {
-                const row = document.createElement('tr');
-                
-                // Get list of crafting stations for this recipe
-                const stations = recipe.craftingOptions.map(opt => opt.craftingStation).join(', ');
-                
-                row.innerHTML = `
-                    <td>${recipe.name}</td>
-                    <td>${stations}</td>
-                    <td>${recipe.yields}</td>
-                    <td>
-                        <button class="edit-row-btn" data-index="${index}">Edit</button>
-                    </td>
-                `;
-                
-                const editBtn = row.querySelector('.edit-row-btn');
-                editBtn.addEventListener('click', () => {
-                    const actualIndex = recipes.findIndex(r => r.name === recipe.name);
-                    openEditRecipeModal(actualIndex);
-                });
-                
-                tableBody.appendChild(row);
-            });
-            
-            // Add search event listener
-            searchInput.addEventListener('input', populateRecipesTab);
-        }
-
-        // Populate storage tab
-        function populateStorageTab() {
-            const tableBody = document.getElementById('storage-table-body');
-            tableBody.innerHTML = '';
+        // Populate the storage list in the right sidebar
+        function populateStorageList() {
+            const storageList = document.getElementById('storage-list');
+            storageList.innerHTML = '';
             
             storageContainers.forEach((container, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${container.name}</td>
-                    <td>${container.capacity}</td>
-                    <td>
-                        <button class="edit-row-btn" data-index="${index}">Edit</button>
-                    </td>
-                `;
+                const storageItem = document.createElement('div');
+                storageItem.className = 'storage-item';
+                storageItem.textContent = `${container.name} (${container.capacity})`;
+                storageItem.dataset.index = index;
                 
-                const editBtn = row.querySelector('.edit-row-btn');
-                editBtn.addEventListener('click', () => {
-                    const newName = prompt('Enter container name:', container.name);
-                    const newCapacity = prompt('Enter capacity:', container.capacity);
-                    
-                    if (newName && newCapacity) {
-                        storageContainers[index] = {
-                            name: newName,
-                            capacity: parseInt(newCapacity) || container.capacity
-                        };
-                        
-                        populateStorageTab();
-                    }
+                storageItem.addEventListener('click', function() {
+                    selectStorage(container);
+                    document.querySelectorAll('.storage-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    storageItem.classList.add('selected');
                 });
                 
-                tableBody.appendChild(row);
+                storageList.appendChild(storageItem);
             });
         }
 
-        // Save data changes
-        function saveDataChanges() {
-            // Update UI elements
-            updateCraftingStationDropdown();
-            populateRecipeList();
+        // Populate the crafting stations dropdown
+        function populateCraftingStations() {
+            const craftingStationSelect = document.getElementById('crafting-station');
+            craftingStationSelect.innerHTML = '';
             
-            // If a recipe is selected, refresh its details
-            if (currentRecipe) {
-                // Find the recipe by name
-                const recipeIndex = recipes.findIndex(r => r.name === currentRecipe.name);
-                if (recipeIndex >= 0) {
-                    currentRecipe = recipes[recipeIndex];
-                    updateCraftingOptionDropdown();
-                    displayRecipeDetails(currentRecipe);
-                }
-            }
-            
-            // Close modal
-            closeEditModal();
-            
-            // Show confirmation
-            alert('Changes saved successfully!');
+            craftingStations.forEach(station => {
+                const option = document.createElement('option');
+                option.value = station;
+                option.textContent = station;
+                craftingStationSelect.appendChild(option);
+            });
         }
 
-        // Export data
-        function exportData() {
-            const data = {
-                craftingStations: craftingStations,
-                storageContainers: storageContainers,
-                ingredients: ingredients,
-                recipes: recipes
-            };
+        // Populate the storage dropdown
+        function populateStorageDropdown() {
+            const storageSelect = document.getElementById('selected-storage');
+            storageSelect.innerHTML = '';
             
-            const json = JSON.stringify(data, null, 2);
-            const blob = new Blob([json], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
+            // Add a custom option
+            const customOption = document.createElement('option');
+            customOption.value = 'custom';
+            customOption.textContent = 'Custom Capacity';
+            storageSelect.appendChild(customOption);
             
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'ark_calculator_data.json';
-            a.click();
+            storageContainers.forEach(container => {
+                const option = document.createElement('option');
+                option.value = container.name;
+                option.textContent = `${container.name} (${container.capacity})`;
+                option.dataset.capacity = container.capacity;
+                storageSelect.appendChild(option);
+            });
             
-            URL.revokeObjectURL(url);
+            storageSelect.addEventListener('change', function() {
+                if (this.value !== 'custom') {
+                    const selectedOption = this.options[this.selectedIndex];
+                    document.getElementById('capacity').value = selectedOption.dataset.capacity;
+                }
+            });
         }
 
-        // Import data
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    
-                    if (data.craftingStations && Array.isArray(data.craftingStations)) {
-                        craftingStations = data.craftingStations;
-                    }
-                    
-                    if (data.storageContainers && Array.isArray(data.storageContainers)) {
-                        storageContainers = data.storageContainers;
-                    }
-                    
-                    if (data.ingredients && Array.isArray(data.ingredients)) {
-                        ingredients = data.ingredients;
-                    }
-                    
-                    if (data.recipes && Array.isArray(data.recipes)) {
-                        // Convert old recipe format to new format if needed
-                        const convertedRecipes = data.recipes.map(recipe => {
-                            // Check if recipe already has craftingOptions
-                            if (recipe.craftingOptions) return recipe;
-                            
-                            // Convert old format to new format
-                            return {
-                                name: recipe.name,
-                                craftingOptions: [
-                                    {
-                                        craftingStation: recipe.craftingStation,
-                                        ingredients: recipe.ingredients
-                                    }
-                                ],
-                                yields: recipe.yields,
-                                craftedItemStackSize: recipe.craftedItemStackSize
-                            };
-                        });
-                        
-                        recipes = convertedRecipes;
-                    }
-                    
-                    // Update UI
-                    updateCraftingStationDropdown();
-                    updateStationSlots();
-                    populateRecipeList();
-                    
-                    alert('Data imported successfully!');
-                } catch (error) {
-                    alert('Error importing data: ' + error.message);
-                }
-            };
-            
-            reader.readAsText(file);
-            event.target.value = '';
+        // Set up initial custom recipe state
+        function setupCustomRecipe() {
+            addIngredientRow();
+            addIngredientRow();
         }
 
         // Set up event listeners
         function setupEventListeners() {
-            // Recipe filtering
-            recipeSearch.addEventListener('input', filterRecipes);
-            stationFilter.addEventListener('change', filterRecipes);
-            
-            // Crafting station change
-            craftingStationSelect.addEventListener('change', function() {
-                const selectedStation = this.value;
-                updateStationSlots();
-                
-                // If a recipe is currently selected, try to update the crafting option
-                if (currentRecipe) {
-                    // Find if current recipe can be crafted in the selected station
-                    const matchingOptionIndex = currentRecipe.craftingOptions.findIndex(
-                        opt => opt.craftingStation === selectedStation
-                    );
-                    
-                    if (matchingOptionIndex >= 0) {
-                        // If there's a matching option, select it
-                        currentCraftingOption = matchingOptionIndex;
-                        updateCraftingOptionDropdown();
-                        displayRecipeDetails(currentRecipe);
-                    }
-                }
-                
-                // Update recipe list based on the selected station
-                filterRecipes();
+            // Recipe search
+            document.getElementById('recipe-search').addEventListener('input', function() {
+                filterRecipeList(this.value);
             });
             
-            // Crafting option change
-            craftingOptionsSelect.addEventListener('change', function() {
-                currentCraftingOption = parseInt(this.value);
-                
-                // Update the main crafting station select to match the option
-                if (currentRecipe && currentRecipe.craftingOptions[currentCraftingOption]) {
-                    const optionStation = currentRecipe.craftingOptions[currentCraftingOption].craftingStation;
-                    craftingStationSelect.value = optionStation;
-                    updateStationSlots();
-                }
-                
-                displayRecipeDetails(currentRecipe);
+            // Storage search
+            document.getElementById('storage-search').addEventListener('input', function() {
+                filterStorageList(this.value);
+            });
+            
+            // Add ingredient button
+            document.getElementById('add-ingredient-btn').addEventListener('click', function() {
+                addIngredientRow();
             });
             
             // Calculate button
-            calculateBtn.addEventListener('click', calculate);
-            
-            // Edit button
-            editBtn.addEventListener('click', openEditModal);
-            
-            // Export button
-            exportBtn.addEventListener('click', exportData);
-            
-            // Import button
-            importBtn.addEventListener('click', () => fileInput.click());
-            fileInput.addEventListener('change', importData);
-            
-            // Modal close button
-            modalClose.addEventListener('click', closeEditModal);
-            
-            // Modal tab buttons
-            tabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    // Remove active class from all tabs
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    tabContents.forEach(content => content.classList.remove('active'));
-                    
-                    // Add active class to clicked tab
-                    button.classList.add('active');
-                    document.getElementById(button.dataset.tab).classList.add('active');
-                    
-                    // Populate tab content
-                    populateTabContent(button.dataset.tab);
-                });
+            document.getElementById('calculate-btn').addEventListener('click', function() {
+                calculateOptimalQuantities();
             });
             
-            // Modal save button
-            saveBtn.addEventListener('click', saveDataChanges);
+            // Custom recipe button
+            document.getElementById('custom-recipe-btn').addEventListener('click', function() {
+                createCustomRecipe();
+            });
+        }
+
+        // Filter the recipe list based on search input
+        function filterRecipeList(searchText) {
+            const recipeItems = document.querySelectorAll('.recipe-item');
             
-            // Click outside modal to close
-            editModalOverlay.addEventListener('click', function(e) {
-                if (e.target === editModalOverlay) {
-                    closeEditModal();
+            recipeItems.forEach(item => {
+                const recipeName = item.textContent.toLowerCase();
+                if (recipeName.includes(searchText.toLowerCase())) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
                 }
             });
         }
 
-        // Recipe Edit Modal Functions
-        let currentEditingRecipe = null;
-        let editingRecipeIndex = -1;
-
-        // Initialize recipe edit modal
-        function initRecipeEditModal() {
-            const modal = document.getElementById('recipe-edit-modal-overlay');
-            const closeBtn = modal.querySelector('.modal-close');
-            const saveBtn = modal.querySelector('#save-recipe-btn');
-            const cancelBtn = modal.querySelector('#cancel-recipe-btn');
-            const addOptionBtn = modal.querySelector('#add-crafting-option-btn');
+        // Filter the storage list based on search input
+        function filterStorageList(searchText) {
+            const storageItems = document.querySelectorAll('.storage-item');
             
-            // Close modal events
-            closeBtn.addEventListener('click', closeRecipeEditModal);
-            cancelBtn.addEventListener('click', closeRecipeEditModal);
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) closeRecipeEditModal();
+            storageItems.forEach(item => {
+                const storageName = item.textContent.toLowerCase();
+                if (storageName.includes(searchText.toLowerCase())) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Select a recipe and display its details
+        function selectRecipe(recipe) {
+            currentRecipe = recipe;
+            
+            // Update recipe details
+            document.getElementById('recipe-name').textContent = recipe.name;
+            document.getElementById('crafting-station').value = recipe.craftingStation;
+            document.getElementById('recipe-yield').value = recipe.yields;
+            
+            // Clear existing ingredients
+            const ingredientsContainer = document.getElementById('ingredients-container');
+            ingredientsContainer.innerHTML = '';
+            
+            // Add ingredient rows for the recipe
+            recipe.ingredients.forEach(ingredient => {
+                addIngredientRow(ingredient.name, ingredient.quantity);
+            });
+        }
+
+        // Select a storage container and update capacity
+        function selectStorage(container) {
+            document.getElementById('selected-storage').value = container.name;
+            document.getElementById('capacity').value = container.capacity;
+        }
+
+        // Create a custom recipe from current inputs
+        function createCustomRecipe() {
+            // Clear recipe selection
+            document.querySelectorAll('.recipe-item').forEach(item => {
+                item.classList.remove('selected');
             });
             
-            // Save recipe event
-            saveBtn.addEventListener('click', saveRecipe);
+            // Reset recipe details
+            document.getElementById('recipe-name').textContent = 'Custom Recipe';
+            document.getElementById('crafting-station').value = 'Inventory';
+            document.getElementById('recipe-yield').value = 1;
             
-            // Add crafting option event
-            addOptionBtn.addEventListener('click', addCraftingOption);
+            // Clear existing ingredients
+            const ingredientsContainer = document.getElementById('ingredients-container');
+            ingredientsContainer.innerHTML = '';
+            
+            // Add two empty ingredient rows
+            addIngredientRow();
+            addIngredientRow();
+            
+            currentRecipe = null;
         }
 
-        // Open recipe edit modal for a new recipe
-        function openNewRecipeModal() {
-            currentEditingRecipe = {
-                name: '',
-                craftingOptions: [],
-                yields: 1,
-                craftedItemStackSize: 100,
-                category: 'resource'
-            };
-            editingRecipeIndex = -1;
-            openRecipeEditModal();
-        }
-
-        // Open recipe edit modal for an existing recipe
-        function openEditRecipeModal(recipeIndex) {
-            editingRecipeIndex = recipeIndex;
-            currentEditingRecipe = JSON.parse(JSON.stringify(recipes[recipeIndex]));
-            openRecipeEditModal();
-        }
-
-        // Open and populate the recipe edit modal
-        function openRecipeEditModal() {
-            const modal = document.getElementById('recipe-edit-modal-overlay');
-            const nameInput = modal.querySelector('#recipe-name');
-            const yieldInput = modal.querySelector('#recipe-yield');
-            const stackSizeInput = modal.querySelector('#recipe-stack-size');
-            const optionsContainer = modal.querySelector('#crafting-options-container');
+        // Add a new ingredient row to the ingredients container
+        function addIngredientRow(ingredientName = '', quantity = 1) {
+            ingredientCounter++;
+            const id = ingredientCounter;
             
-            // Set form values
-            nameInput.value = currentEditingRecipe.name || '';
-            yieldInput.value = currentEditingRecipe.yields || 1;
-            stackSizeInput.value = currentEditingRecipe.craftedItemStackSize || 100;
+            const ingredientsContainer = document.getElementById('ingredients-container');
+            const row = document.createElement('div');
+            row.className = 'ingredient-row';
+            row.id = `ingredient-row-${id}`;
             
-            // Clear crafting options container
-            optionsContainer.innerHTML = '';
+            const autocompleteContainer = document.createElement('div');
+            autocompleteContainer.className = 'ingredient-autocomplete';
             
-            // Add existing crafting options
-            if (currentEditingRecipe.craftingOptions && currentEditingRecipe.craftingOptions.length > 0) {
-                currentEditingRecipe.craftingOptions.forEach((option, index) => {
-                    const optionElement = createCraftingOptionElement(index);
-                    optionsContainer.appendChild(optionElement);
-                    
-                    // Set station value
-                    const stationSelect = optionElement.querySelector('.station-select');
-                    setSelectValue(stationSelect, option.craftingStation);
-                    
-                    // Add ingredients
-                    const ingredientsList = optionElement.querySelector('.ingredients-list');
-                    option.ingredients.forEach((ingredient, ingIndex) => {
-                        const ingredientRow = createIngredientRow(ingIndex);
-                        ingredientsList.appendChild(ingredientRow);
-                        
-                        // Set ingredient values
-                        const ingredientSelect = ingredientRow.querySelector('.ingredient-select');
-                        const quantityInput = ingredientRow.querySelector('.ingredient-quantity');
-                        
-                        setSelectValue(ingredientSelect, ingredient.name);
-                        quantityInput.value = ingredient.quantity || 1;
-                    });
-                });
-            } else {
-                // Add one empty crafting option by default
-                addCraftingOption();
-            }
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'ingredient-input ingredient-name';
+            input.id = `ingredient-name-${id}`;
+            input.placeholder = 'Type ingredient name...';
+            input.value = ingredientName;
             
-            // Show modal
-            modal.style.display = 'flex';
-        }
-
-        // Create a crafting option element
-        function createCraftingOptionElement(index) {
-            const template = document.getElementById('crafting-option-template');
-            const optionHtml = template.innerHTML.replace(/{index}/g, index + 1);
+            const autocompleteList = document.createElement('div');
+            autocompleteList.className = 'autocomplete-list';
+            autocompleteList.id = `autocomplete-list-${id}`;
             
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = optionHtml;
-            const optionElement = tempDiv.firstElementChild;
+            autocompleteContainer.appendChild(input);
+            autocompleteContainer.appendChild(autocompleteList);
             
-            // Populate station dropdown
-            const stationSelect = optionElement.querySelector('.station-select');
-            populateStationDropdown(stationSelect);
+            const quantityInput = document.createElement('input');
+            quantityInput.type = 'number';
+            quantityInput.className = 'quantity-input ingredient-quantity';
+            quantityInput.id = `ingredient-quantity-${id}`;
+            quantityInput.value = quantity;
+            quantityInput.min = 1;
             
-            // Add ingredient button event
-            const addIngredientBtn = optionElement.querySelector('.add-ingredient-btn');
-            addIngredientBtn.addEventListener('click', function() {
-                const ingredientsList = this.previousElementSibling;
-                const ingIndex = ingredientsList.children.length;
-                const ingredientRow = createIngredientRow(ingIndex);
-                ingredientsList.appendChild(ingredientRow);
-            });
-            
-            // Remove option button event
-            const removeBtn = optionElement.querySelector('.remove-option-btn');
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.textContent = 'Remove';
             removeBtn.addEventListener('click', function() {
-                if (confirm('Are you sure you want to remove this crafting option?')) {
-                    optionElement.remove();
-                    // Renumber remaining options
-                    const options = document.querySelectorAll('#crafting-options-container .crafting-option');
-                    options.forEach((opt, i) => {
-                        opt.dataset.index = i + 1;
-                        opt.querySelector('.crafting-option-header span').textContent = `Crafting Option #${i + 1}`;
+                if (document.querySelectorAll('.ingredient-row').length > 1) {
+                    document.getElementById(`ingredient-row-${id}`).remove();
+                }
+            });
+            
+            row.appendChild(autocompleteContainer);
+            row.appendChild(quantityInput);
+            row.appendChild(removeBtn);
+            
+            ingredientsContainer.appendChild(row);
+            
+            // Set up autocomplete for the ingredient input
+            setupAutocomplete(input, autocompleteList, ingredients);
+        }
+
+        // Set up autocomplete functionality for input fields
+        function setupAutocomplete(input, listElement, items) {
+            input.addEventListener('input', function() {
+                const searchText = this.value.toLowerCase();
+                
+                if (searchText.length > 0) {
+                    listElement.innerHTML = '';
+                    
+                    const matches = items.filter(item => 
+                        item.toLowerCase().includes(searchText)
+                    );
+                    
+                    if (matches.length > 0) {
+                        listElement.style.display = 'block';
+                        
+                        matches.forEach(match => {
+                            const item = document.createElement('div');
+                            item.className = 'autocomplete-item';
+                            item.textContent = match;
+                            
+                            item.addEventListener('click', function() {
+                                input.value = match;
+                                listElement.style.display = 'none';
+                            });
+                            
+                            listElement.appendChild(item);
+                        });
+                    } else {
+                        listElement.style.display = 'none';
+                    }
+                } else {
+                    listElement.style.display = 'none';
+                }
+            });
+            
+            // Hide the autocomplete list when clicking outside
+            document.addEventListener('click', function(e) {
+                if (e.target !== input) {
+                    listElement.style.display = 'none';
+                }
+            });
+        }
+
+        // Calculate optimal quantities for storage
+        function calculateOptimalQuantities() {
+            // Get storage capacity
+            const capacity = parseInt(document.getElementById('capacity').value);
+            
+            // Get ingredients and their quantities
+            const ingredients = [];
+            const ingredientRows = document.querySelectorAll('.ingredient-row');
+            
+            ingredientRows.forEach(row => {
+                const nameInput = row.querySelector('.ingredient-name');
+                const quantityInput = row.querySelector('.ingredient-quantity');
+                
+                if (nameInput && quantityInput && nameInput.value.trim() !== '' && quantityInput.value > 0) {
+                    ingredients.push({
+                        name: nameInput.value,
+                        quantity: parseInt(quantityInput.value)
                     });
                 }
             });
             
-            return optionElement;
-        }
-
-        // Create an ingredient row element
-        function createIngredientRow(index) {
-            const template = document.getElementById('ingredient-row-template');
-            const rowHtml = template.innerHTML.replace(/{index}/g, index + 1);
-            
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = rowHtml;
-            const rowElement = tempDiv.firstElementChild;
-            
-            // Populate ingredient dropdown
-            const ingredientSelect = rowElement.querySelector('.ingredient-select');
-            populateIngredientDropdown(ingredientSelect);
-            
-            // Remove ingredient button event
-            const removeBtn = rowElement.querySelector('.remove-ingredient-btn');
-            removeBtn.addEventListener('click', function() {
-                rowElement.remove();
-            });
-            
-            return rowElement;
-        }
-
-        // Populate station dropdown
-        function populateStationDropdown(selectElement) {
-            selectElement.innerHTML = '';
-            
-            craftingStations.forEach(station => {
-                const option = document.createElement('option');
-                option.value = station.name;
-                option.textContent = station.name;
-                selectElement.appendChild(option);
-            });
-        }
-
-        // Populate ingredient dropdown
-        function populateIngredientDropdown(selectElement) {
-            selectElement.innerHTML = '';
-			
-			// Sort ingredients alphabetically
-            const sortedIngredients = [...ingredients].sort((a, b) => a.name.localeCompare(b.name));
-            
-            sortedIngredients.forEach(ingredient => {
-                const option = document.createElement('option');
-                option.value = ingredient.name;
-                option.textContent = ingredient.name;
-                selectElement.appendChild(option);
-            });
-        }
-
-        // Set select element value
-        function setSelectValue(selectElement, value) {
-            for (let i = 0; i < selectElement.options.length; i++) {
-                if (selectElement.options[i].value === value) {
-                    selectElement.selectedIndex = i;
-                    break;
-                }
-            }
-        }
-
-        // Add a new crafting option
-        function addCraftingOption() {
-            const optionsContainer = document.querySelector('#crafting-options-container');
-            const index = optionsContainer.children.length;
-            const optionElement = createCraftingOptionElement(index);
-            optionsContainer.appendChild(optionElement);
-            
-            // Add one empty ingredient by default
-            const ingredientsList = optionElement.querySelector('.ingredients-list');
-            const ingredientRow = createIngredientRow(0);
-            ingredientsList.appendChild(ingredientRow);
-        }
-
-        // Save recipe from modal
-        function saveRecipe() {
-            const modal = document.getElementById('recipe-edit-modal-overlay');
-            const nameInput = modal.querySelector('#recipe-name');
-            const yieldInput = modal.querySelector('#recipe-yield');
-            const stackSizeInput = modal.querySelector('#recipe-stack-size');
-            
-            // Validate form
-            if (!nameInput.value.trim()) {
-                alert('Please enter a recipe name.');
-                nameInput.focus();
+            if (ingredients.length === 0) {
+                alert('Please add at least one valid ingredient.');
                 return;
             }
             
-            // Create recipe object
-            const recipe = {
-                name: nameInput.value.trim(),
-                yields: parseInt(yieldInput.value) || 1,
-                craftedItemStackSize: parseInt(stackSizeInput.value) || 100,
-                craftingOptions: []
-            };
+            // Calculate total parts in recipe
+            const totalRecipeParts = ingredients.reduce((sum, item) => sum + item.quantity, 0);
             
-            // Determine category based on name patterns
-            if (/bullet|ammo|arrow|dart/i.test(recipe.name)) {
-                recipe.category = 'ammunition';
-            } else if (/armor|helmet|chest|gloves|pants|boots|shield/i.test(recipe.name)) {
-                recipe.category = 'armor';
-            } else if (/foundation|wall|ceiling|door|gateway/i.test(recipe.name)) {
-                recipe.category = 'building';
-            } else if (/kibble|jerky|stew|dish|soup|brew|tonic|medicine/i.test(recipe.name)) {
-                recipe.category = 'consumable';
-            } else if (/ingot|paste|polymer|gunpowder|sparkpowder|narcotic|stimulant/i.test(recipe.name)) {
-                recipe.category = 'resource';
-            } else if (/saddle/i.test(recipe.name)) {
-                recipe.category = 'saddle';
-            } else if (/pick|axe|hatchet|sickle|scissors/i.test(recipe.name)) {
-                recipe.category = 'tool';
-            } else if (/pistol|rifle|shotgun|bow|pike|sword|club/i.test(recipe.name)) {
-                recipe.category = 'weapon';
-            } else {
-                recipe.category = 'resource'; // Default category
-            }
-            
-            // Get crafting options
-            const optionElements = modal.querySelectorAll('#crafting-options-container .crafting-option');
-            
-            if (optionElements.length === 0) {
-                alert('Please add at least one crafting option.');
-                return;
-            }
-            
-            // Process each crafting option
-            optionElements.forEach(optionElement => {
-                const stationSelect = optionElement.querySelector('.station-select');
-                const ingredientRows = optionElement.querySelectorAll('.ingredient-row');
+            // Calculate proportions for each item
+            ingredients.forEach(item => {
+                item.proportion = item.quantity / totalRecipeParts;
                 
-                if (ingredientRows.length === 0) {
-                    alert('Please add at least one ingredient to each crafting option.');
-                    return;
-                }
-                
-                const craftingOption = {
-                    craftingStation: stationSelect.value,
-                    ingredients: []
-                };
-                
-                // Process each ingredient
-                ingredientRows.forEach(row => {
-                    const ingredientSelect = row.querySelector('.ingredient-select');
-                    const quantityInput = row.querySelector('.ingredient-quantity');
-                    
-                    craftingOption.ingredients.push({
-                        name: ingredientSelect.value,
-                        quantity: parseInt(quantityInput.value) || 1
-                    });
-                });
-                
-                recipe.craftingOptions.push(craftingOption);
+                // Initial calculation (raw values)
+                item.calculatedQuantity = Math.round(capacity * item.proportion);
             });
             
-            // Save recipe to the recipes array
-            if (editingRecipeIndex >= 0) {
-                // Update existing recipe
-                recipes[editingRecipeIndex] = recipe;
-            } else {
-                // Add new recipe
-                recipes.push(recipe);
-            }
+            // Adjust to ensure total equals capacity
+            let totalCalculated = ingredients.reduce((sum, item) => sum + item.calculatedQuantity, 0);
             
-            // Close modal
-            closeRecipeEditModal();
-            
-            // Update UI
-            populateRecipeList();
-            populateRecipesTab();
-            
-            // If editing the current recipe, refresh its details
-            if (currentRecipe && currentRecipe.name === recipe.name) {
-                currentRecipe = recipe;
-                updateCraftingOptionDropdown();
-                displayRecipeDetails(currentRecipe);
-            }
-            
-            // Show confirmation
-            alert(`Recipe ${editingRecipeIndex >= 0 ? 'updated' : 'added'} successfully!`);
-        }
-
-        // Close recipe edit modal
-        function closeRecipeEditModal() {
-            const modal = document.getElementById('recipe-edit-modal-overlay');
-            modal.style.display = 'none';
-        }
-
-        // Add new recipe button to the recipes tab
-        function addNewRecipeButton() {
-            const recipesTab = document.getElementById('recipes-tab');
-            const heading = recipesTab.querySelector('h3');
-            
-            const addButton = document.createElement('button');
-            addButton.className = 'add-btn';
-            addButton.textContent = 'Add New Recipe';
-            addButton.style.marginLeft = '10px';
-            addButton.addEventListener('click', openNewRecipeModal);
-            
-            heading.appendChild(addButton);
-        }
-
-        // Wiki Import Functions
-
-        // Start Wiki Import Process
-        function startWikiImport() {
-            const modal = document.getElementById('wiki-import-modal');
-            const statusDiv = modal.querySelector('#wiki-import-status');
-            const importMessage = modal.querySelector('#import-message');
-            const progressBar = modal.querySelector('#progress-bar');
-            const progressText = modal.querySelector('#progress-text');
-            
-            const importIngredients = modal.querySelector('#import-ingredients').checked;
-            const importStations = modal.querySelector('#import-stations').checked;
-            const importRecipes = modal.querySelector('#import-recipes').checked;
-            const wikiUrl = modal.querySelector('#wiki-url').value.trim();
-            
-            if (!importIngredients && !importStations && !importRecipes) {
-                alert('Please select at least one type of data to import.');
-                return;
-            }
-            
-            // Show status
-            statusDiv.style.display = 'block';
-            importMessage.textContent = 'Initializing import...';
-            progressBar.style.width = '0%';
-            progressText.textContent = '0%';
-            
-            // In a real implementation, this would use AJAX or fetch to get data from a proxy server
-            // Since we can't actually scrape the wiki directly due to CORS, we'll simulate the process
-            simulateWikiImport(importIngredients, importStations, importRecipes, wikiUrl, updateProgress)
-                .then(importedData => {
-                    // Process imported data
-                    processImportedData(importedData, importIngredients, importStations, importRecipes);
-                    
-                    // Show completion
-                    importMessage.textContent = 'Import completed successfully!';
-                    progressBar.style.width = '100%';
-                    progressText.textContent = '100%';
-                    
-                    // Close modal after a delay
-                    setTimeout(() => {
-                        modal.style.display = 'none';
-                        
-                        // Update UI
-                        updateCraftingStationDropdown();
-                        populateRecipeList();
-                        if (currentRecipe) {
-                            updateCraftingOptionDropdown();
-                            displayRecipeDetails(currentRecipe);
-                        }
-                        
-                        // Show confirmation
-                        alert('Data imported successfully from ARK Wiki!');
-                    }, 2000);
-                })
-                .catch(error => {
-                    importMessage.textContent = `Import failed: ${error.message}`;
-                    console.error('Import error:', error);
-                });
-        }
-
-        // Update progress function
-        function updateProgress(message, percent) {
-            const statusDiv = document.getElementById('wiki-import-status');
-            const importMessage = document.getElementById('import-message');
-            const progressBar = document.getElementById('progress-bar');
-            const progressText = document.getElementById('progress-text');
-            
-            importMessage.textContent = message;
-            progressBar.style.width = `${percent}%`;
-            progressText.textContent = `${percent}%`;
-        }
-
-        // Simulate wiki import (in a real implementation, this would make actual requests)
-        function simulateWikiImport(importIngredients, importStations, importRecipes, wikiUrl, updateProgress) {
-            return new Promise((resolve, reject) => {
-                const importedData = {
-                    ingredients: [],
-                    stations: [],
-                    recipes: []
-                };
+            // Adjust items if necessary to match capacity exactly
+            if (totalCalculated !== capacity) {
+                const diff = capacity - totalCalculated;
                 
-                // Simulate async operations with timeouts
-                setTimeout(() => {
-                    updateProgress('Getting ingredient data...', 20);
+                if (diff > 0) {
+                    // Need to add items - prioritize by proportion
+                    const sortedItems = [...ingredients].sort((a, b) => b.proportion - a.proportion);
                     
-                    if (importIngredients) {
-                        // Sample ingredient data (would be scraped from wiki)
-                        importedData.ingredients = [
-                            { name: "Metal Fragment", stackSize: 1000 },
-                            { name: "Polymer Ingot", stackSize: 100 },
-                            { name: "Advanced Rifle Bullet", stackSize: 100 },
-                            { name: "Industrial Forge Parts", stackSize: 10 },
-                            { name: "Tek Element", stackSize: 100 },
-                            { name: "Chitin Shell Fragment", stackSize: 500 },
-                            { name: "Refined Metal", stackSize: 200 },
-                            { name: "High-Quality Pearl", stackSize: 100 }
-                        ];
+                    for (let i = 0; i < diff; i++) {
+                        sortedItems[i % sortedItems.length].calculatedQuantity++;
                     }
+                } else {
+                    // Need to remove items - prioritize by proportion (smallest first)
+                    const sortedItems = [...ingredients].sort((a, b) => a.proportion - b.proportion);
                     
-                    setTimeout(() => {
-                        updateProgress('Getting crafting station data...', 40);
-                        
-                        if (importStations) {
-                            // Sample station data (would be scraped from wiki)
-                            importedData.stations = [
-                                { name: "Tek Replicator", slotCapacity: 600 },
-                                { name: "Tek Reprocessor", slotCapacity: 100 },
-                                { name: "Industrial Grill", slotCapacity: 150 },
-                                { name: "Cryofridge", slotCapacity: 50 }
-                            ];
-                        }
-                        
-                        setTimeout(() => {
-                            updateProgress('Getting recipe data...', 60);
-                            
-                            if (importRecipes) {
-                                // Sample recipe data (would be scraped from wiki)
-                                importedData.recipes = [
-                                    {
-                                        name: "Advanced Rifle Bullet",
-                                        craftingOptions: [
-                                            {
-                                                craftingStation: "Fabricator",
-                                                ingredients: [
-                                                    { name: "Metal Ingot", quantity: 1 },
-                                                    { name: "Gunpowder", quantity: 6 }
-                                                ]
-                                            },
-                                            {
-                                                craftingStation: "Chemistry Bench",
-                                                ingredients: [
-                                                    { name: "Metal Ingot", quantity: 4 },
-                                                    { name: "Gunpowder", quantity: 24 }
-                                                ]
-                                            }
-                                        ],
-                                        yields: 2,
-                                        craftedItemStackSize: 100,
-                                        category: "ammunition"
-                                    },
-                                    {
-                                        name: "Industrial Forge",
-                                        craftingOptions: [
-                                            {
-                                                craftingStation: "Smithy",
-                                                ingredients: [
-                                                    { name: "Metal Ingot", quantity: 250 },
-                                                    { name: "Spark Powder", quantity: 250 },
-                                                    { name: "Crystal", quantity: 80 },
-                                                    { name: "Cementing Paste", quantity: 200 },
-                                                    { name: "Polymer", quantity: 100 }
-                                                ]
-                                            }
-                                        ],
-                                        yields: 1,
-                                        craftedItemStackSize: 1,
-                                        category: "building"
-                                    },
-                                    {
-                                        name: "Tek Generator",
-                                        craftingOptions: [
-                                            {
-                                                craftingStation: "Tek Replicator",
-                                                ingredients: [
-                                                    { name: "Element", quantity: 80 },
-                                                    { name: "Metal Ingot", quantity: 2500 },
-                                                    { name: "Crystal", quantity: 500 },
-                                                    { name: "Black Pearl", quantity: 200 },
-                                                    { name: "Polymer", quantity: 1200 }
-                                                ]
-                                            }
-                                        ],
-                                        yields: 1,
-                                        craftedItemStackSize: 1,
-                                        category: "building"
-                                    }
-                                ];
-                            }
-                            
-                            setTimeout(() => {
-                                updateProgress('Processing data...', 80);
-                                
-                                // Simulate processing time
-                                setTimeout(() => {
-                                    updateProgress('Finalizing import...', 90);
-                                    
-                                    // Return the imported data
-                                    resolve(importedData);
-                                }, 500);
-                            }, 500);
-                        }, 1000);
-                    }, 800);
-                }, 800);
-            });
-        }
-
-        // Process the imported data and merge with existing data
-        function processImportedData(importedData, importIngredients, importStations, importRecipes) {
-            // Process ingredients
-            if (importIngredients && importedData.ingredients.length > 0) {
-                // Add new ingredients without duplicates
-                importedData.ingredients.forEach(newIngredient => {
-                    const existingIndex = ingredients.findIndex(i => i.name === newIngredient.name);
-                    if (existingIndex === -1) {
-                        ingredients.push(newIngredient);
-                    } else {
-                        // Update existing ingredient if needed
-                        // ingredients[existingIndex] = newIngredient;
-                    }
-                });
-            }
-            
-            // Process stations
-            if (importStations && importedData.stations.length > 0) {
-                // Add new stations without duplicates
-                importedData.stations.forEach(newStation => {
-                    const existingIndex = craftingStations.findIndex(s => s.name === newStation.name);
-                    if (existingIndex === -1) {
-                        craftingStations.push(newStation);
-                    } else {
-                        // Update existing station if needed
-                        // craftingStations[existingIndex] = newStation;
-                    }
-                });
-            }
-            
-            // Process recipes
-            if (importRecipes && importedData.recipes.length > 0) {
-                // Add new recipes without duplicates
-                importedData.recipes.forEach(newRecipe => {
-                    const existingIndex = recipes.findIndex(r => r.name === newRecipe.name);
-                    if (existingIndex === -1) {
-                        recipes.push(newRecipe);
-                    } else {
-                        // Option to merge or replace existing recipes
-                        if (confirm(`Recipe "${newRecipe.name}" already exists. Do you want to replace it?`)) {
-                            recipes[existingIndex] = newRecipe;
+                    for (let i = 0; i < Math.abs(diff); i++) {
+                        // Ensure we don't reduce any item below 1
+                        if (sortedItems[i % sortedItems.length].calculatedQuantity > 1) {
+                            sortedItems[i % sortedItems.length].calculatedQuantity--;
                         }
                     }
-                });
-            }
-        }
-
-        // Initialize Wiki Import Modal
-        function initWikiImportModal() {
-            const modal = document.getElementById('wiki-import-modal');
-            if (!modal) return;
-            
-            const closeBtn = modal.querySelector('.modal-close');
-            const cancelBtn = modal.querySelector('#cancel-import-btn');
-            const startBtn = modal.querySelector('#start-import-btn');
-            
-            closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
-            cancelBtn.addEventListener('click', () => { modal.style.display = 'none'; });
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) modal.style.display = 'none';
-            });
-            
-            startBtn.addEventListener('click', startWikiImport);
-        }
-
-        // Bulk Recipe Management
-
-        // Delete selected recipes
-        function deleteSelectedRecipes() {
-            const checkboxes = document.querySelectorAll('.recipe-checkbox:checked');
-            
-            if (checkboxes.length === 0) {
-                alert('No recipes selected.');
-                return;
-            }
-            
-            if (!confirm(`Are you sure you want to delete ${checkboxes.length} selected recipes?`)) {
-                return;
-            }
-            
-            // Get names of recipes to delete
-            const recipesToDelete = Array.from(checkboxes).map(cb => cb.dataset.recipeName);
-            
-            // Remove recipes
-            recipesToDelete.forEach(name => {
-                const index = recipes.findIndex(r => r.name === name);
-                if (index >= 0) {
-                    recipes.splice(index, 1);
                 }
+            }
+            
+            // Calculate how many complete recipes can be crafted
+            const recipeYield = parseInt(document.getElementById('recipe-yield').value) || 1;
+            const recipeMultiples = ingredients.map(item => Math.floor(item.calculatedQuantity / item.quantity));
+            const completeRecipes = Math.min(...recipeMultiples) * recipeYield;
+            
+            // Update the results table
+            const resultsBody = document.getElementById('results-body');
+            resultsBody.innerHTML = '';
+            
+            ingredients.forEach(item => {
+                const row = document.createElement('tr');
+                const percentage = Math.round((item.calculatedQuantity / capacity) * 100);
+                
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.calculatedQuantity}</td>
+                    <td>${percentage}%</td>
+                `;
+                
+                resultsBody.appendChild(row);
             });
             
-            // Update UI
-            populateRecipesTab();
+            // Update recipes count
+            document.getElementById('crafting-amount').textContent = completeRecipes;
+        }
+        
+        // Initialize the application when the page loads
+        window.onload = function() {
             populateRecipeList();
-            
-            // Reset the select all checkbox
-            const selectAllCheckbox = document.getElementById('select-all-recipes');
-            if (selectAllCheckbox) selectAllCheckbox.checked = false;
-            
-            // Show confirmation
-            alert(`Deleted ${recipesToDelete.length} recipes.`);
-        }
-
-        // Add Recipe Categories
-        function addRecipeCategories() {
-            // Create category dropdown if it doesn't already exist
-            if (document.getElementById('category-filter')) return;
-            
-            const sidebar = document.querySelector('.sidebar');
-            const searchInput = document.getElementById('recipe-search');
-            
-            const categoryContainer = document.createElement('div');
-            categoryContainer.style.marginBottom = '15px';
-            
-            const categoryLabel = document.createElement('label');
-            categoryLabel.textContent = 'Category:';
-            categoryLabel.style.display = 'block';
-            categoryLabel.style.marginBottom = '5px';
-            categoryLabel.style.color = '#bdc3c7';
-            
-            const categorySelect = document.createElement('select');
-            categorySelect.id = 'category-filter';
-            categorySelect.className = 'station-filter';
-            
-            // Add default option
-            const defaultOption = document.createElement('option');
-            defaultOption.value = 'all';
-            defaultOption.textContent = 'All Categories';
-            categorySelect.appendChild(defaultOption);
-            
-            // Add categories based on recipe types
-            const categories = [
-                'Ammunition',
-                'Armor',
-                'Building',
-                'Consumable',
-                'Resource',
-                'Saddle',
-                'Tool',
-                'Weapon'
-            ];
-            
-            categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category.toLowerCase();
-                option.textContent = category;
-                categorySelect.appendChild(option);
-            });
-            
-            categoryContainer.appendChild(categoryLabel);
-            categoryContainer.appendChild(categorySelect);
-            
-            // Insert after station filter
-            const stationFilter = document.getElementById('station-filter');
-            stationFilter.parentNode.insertBefore(categoryContainer, stationFilter.nextSibling);
-            
-            // Add event listener
-            categorySelect.addEventListener('change', filterRecipes);
-        }
-
-        // Add Favorites Functionality
-        function addFavoritesFunctionality() {
-            // Add favorites toggle only if it doesn't exist
-            if (document.getElementById('favorites-only')) return;
-            
-            // Initialize favorites array
-            if (!localStorage.getItem('arkFavorites')) {
-                localStorage.setItem('arkFavorites', JSON.stringify([]));
-            }
-            
-            // Add favorites filter
-            const sidebar = document.querySelector('.sidebar');
-            const stationFilter = document.getElementById('station-filter');
-            
-            const favoritesCheckbox = document.createElement('div');
-            favoritesCheckbox.style.margin = '10px 0';
-            favoritesCheckbox.style.display = 'flex';
-            favoritesCheckbox.style.alignItems = 'center';
-            
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.id = 'favorites-only';
-            
-            const label = document.createElement('label');
-            label.htmlFor = 'favorites-only';
-            label.textContent = 'Favorites Only';
-            label.style.color = '#bdc3c7';
-            label.style.marginLeft = '5px';
-            
-            favoritesCheckbox.appendChild(checkbox);
-            favoritesCheckbox.appendChild(label);
-            
-            // Insert after station filter
-            const categoryFilter = document.getElementById('category-filter');
-            if (categoryFilter) {
-                categoryFilter.parentNode.insertBefore(favoritesCheckbox, categoryFilter.nextSibling);
-            } else {
-                stationFilter.parentNode.insertBefore(favoritesCheckbox, stationFilter.nextSibling);
-            }
-            
-            // Add event listener
-            checkbox.addEventListener('change', filterRecipes);
-        }
-
-        // Add Bulk Recipe Management
-        function addBulkRecipeManagement() {
-            // Add batch actions to the recipes tab if they don't already exist
-            if (document.querySelector('.batch-actions')) return;
-            
-            const recipesTab = document.getElementById('recipes-tab');
-            const header = recipesTab.querySelector('h3');
-            
-            // Create action buttons container
-            const actionContainer = document.createElement('div');
-            actionContainer.className = 'batch-actions';
-            
-            // Add batch delete button
-            const batchDeleteBtn = document.createElement('button');
-            batchDeleteBtn.className = 'remove-btn';
-            batchDeleteBtn.textContent = 'Delete Selected';
-            batchDeleteBtn.addEventListener('click', deleteSelectedRecipes);
-            
-            // Add select all checkbox
-            const selectAllContainer = document.createElement('div');
-            selectAllContainer.style.display = 'flex';
-            selectAllContainer.style.alignItems = 'center';
-            selectAllContainer.style.marginRight = '10px';
-            
-            const selectAllCheckbox = document.createElement('input');
-            selectAllCheckbox.type = 'checkbox';
-            selectAllCheckbox.id = 'select-all-recipes';
-            
-            const selectAllLabel = document.createElement('label');
-            selectAllLabel.htmlFor = 'select-all-recipes';
-            selectAllLabel.textContent = 'Select All';
-            selectAllLabel.style.marginLeft = '5px';
-            
-            selectAllCheckbox.addEventListener('change', function() {
-                const checkboxes = document.querySelectorAll('.recipe-checkbox');
-                checkboxes.forEach(cb => cb.checked = this.checked);
-            });
-            
-            selectAllContainer.appendChild(selectAllCheckbox);
-            selectAllContainer.appendChild(selectAllLabel);
-            
-            // Add items to action container
-            actionContainer.appendChild(selectAllContainer);
-            actionContainer.appendChild(batchDeleteBtn);
-            
-            // Add action container after the header
-            header.after(actionContainer);
-            
-            // Modify the recipes table to include checkboxes if it hasn't been modified already
-            modifyRecipesTable();
-        }
-
-        // Modify the recipes table to include checkboxes
-        function modifyRecipesTable() {
-            // Get the recipes table
-            const table = document.querySelector('#recipes-tab table');
-            const headerRow = table.querySelector('thead tr');
-            
-            // Check if checkbox column already exists
-            if (headerRow.cells[0].style.width === '40px') return;
-            
-            // Add checkbox column header
-            const checkboxHeader = document.createElement('th');
-            checkboxHeader.style.width = '40px';
-            headerRow.insertBefore(checkboxHeader, headerRow.firstChild);
-            
-            // Override the populateRecipesTab function to include checkboxes
-            const originalPopulateRecipesTab = window.populateRecipesTab;
-            
-            window.populateRecipesTab = function() {
-                originalPopulateRecipesTab();
-                
-                // Get all recipe rows
-                const rows = document.querySelectorAll('#recipes-table-body tr');
-                
-                // Add checkbox to each row
-                rows.forEach(row => {
-                    // Skip if checkbox already exists
-                    if (row.cells[0].querySelector('.recipe-checkbox')) return;
-                    
-                    const checkboxCell = document.createElement('td');
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.className = 'recipe-checkbox';
-                    checkbox.dataset.recipeName = row.cells[1].textContent; // Store recipe name
-                    
-                    checkboxCell.appendChild(checkbox);
-                    row.insertBefore(checkboxCell, row.firstChild);
-                });
-            };
-        }
-
-        // Add "Edit Current Recipe" button to main UI
-        function addEditCurrentRecipeButton() {
-            const actionButtons = document.querySelector('.action-buttons');
-            if (!actionButtons) return;
-            
-            // Skip if button already exists
-            if (actionButtons.querySelector('#edit-current-recipe-btn')) return;
-            
-            const editRecipesBtn = document.createElement('button');
-            editRecipesBtn.className = 'edit-btn';
-            editRecipesBtn.id = 'edit-current-recipe-btn';
-            editRecipesBtn.textContent = 'Edit Current Recipe';
-            editRecipesBtn.style.marginRight = '10px';
-            
-            editRecipesBtn.addEventListener('click', function() {
-                if (!currentRecipe) {
-                    alert('Please select a recipe first.');
-                    return;
-                }
-                
-                const recipeIndex = recipes.findIndex(r => r.name === currentRecipe.name);
-                if (recipeIndex >= 0) {
-                    openEditRecipeModal(recipeIndex);
-                }
-            });
-            
-            // Insert after calculate button
-            actionButtons.insertBefore(editRecipesBtn, actionButtons.children[1]);
-        }
-
-        // Add "Add New Recipe" button in the sidebar
-        function addNewRecipeSidebarButton() {
-            const sidebar = document.querySelector('.sidebar');
-            const recipeList = document.getElementById('recipe-list');
-            
-            // Skip if button already exists
-            if (sidebar.querySelector('#add-new-recipe-btn')) return;
-            
-            const addRecipeBtn = document.createElement('button');
-            addRecipeBtn.className = 'add-btn';
-            addRecipeBtn.id = 'add-new-recipe-btn';
-            addRecipeBtn.textContent = 'Add New Recipe';
-            addRecipeBtn.style.width = '100%';
-            addRecipeBtn.style.marginTop = '10px';
-            
-            addRecipeBtn.addEventListener('click', openNewRecipeModal);
-            
-            // Add button after recipe list
-            recipeList.after(addRecipeBtn);
-        }
-
-        // Add wiki import button to sidebar
-        function addWikiImportButton() {
-            const sidebar = document.querySelector('.sidebar');
-            
-            // Skip if button already exists
-            if (sidebar.querySelector('#wiki-import-btn')) return;
-            
-            const wikiBtn = document.createElement('button');
-            wikiBtn.className = 'import-btn';
-            wikiBtn.id = 'wiki-import-btn';
-            wikiBtn.textContent = 'Import from ARK Wiki';
-            wikiBtn.style.width = '100%';
-            wikiBtn.style.marginTop = '10px';
-            wikiBtn.style.marginBottom = '10px';
-            
-            wikiBtn.addEventListener('click', function() {
-                const wikiModal = document.getElementById('wiki-import-modal');
-                if (wikiModal) {
-                    wikiModal.style.display = 'flex';
-                }
-            });
-            
-            // Add button to sidebar at the top
-            const stationFilter = document.getElementById('station-filter');
-            stationFilter.parentNode.insertBefore(wikiBtn, stationFilter);
-        }
-
-        // Initialize all enhancements
-        function initEnhancements() {
-            // Initialize the recipe edit modal
-            initRecipeEditModal();
-            
-            // Initialize the wiki import modal
-            initWikiImportModal();
-            
-            // Add recipe categories dropdown
-            addRecipeCategories();
-            
-            // Add favorites functionality
-            addFavoritesFunctionality();
-            
-            // Add bulk recipe management to edit modal
-            addBulkRecipeManagement();
-            
-            // Add new recipe button to data edit modal
-            addNewRecipeButton();
-            
-            // Add edit current recipe button to main UI
-            addEditCurrentRecipeButton();
-            
-            // Add new recipe button to sidebar
-            addNewRecipeSidebarButton();
-            
-            // Add wiki import button to sidebar
-            addWikiImportButton();
-            
-            console.log('ARK Crafting Calculator enhancements initialized.');
-        }
-
-        // Initialize the app (direct initialization without DOMContentLoaded)
-        function init() {
-            // Update crafting station dropdown
-            updateCraftingStationDropdown();
-            
-            // Update station slots based on selected station
-            updateStationSlots();
-            
-            // Populate recipe list
-            populateRecipeList();
-            
-            // Set up event listeners
+            populateStorageList();
+            populateCraftingStations();
+            populateStorageDropdown();
+            setupCustomRecipe();
             setupEventListeners();
             
-            // Initialize enhancements after a short delay
-            setTimeout(initEnhancements, 100);
-        }
-
-        // Run initialization
-        init();
+            // Start with default recipe (Narcotic)
+            selectRecipe(recipes[0]);
+        };
     </script>
 </body>
 </html>
